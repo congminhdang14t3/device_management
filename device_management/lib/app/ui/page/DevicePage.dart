@@ -49,31 +49,35 @@ class _DevicePageState extends State<DevicePage> {
   Widget build(BuildContext context) {
     final menuIcon = IconButton(
         padding: EdgeInsets.all(0.0),
-        icon: Icon(Icons.menu, size: 45, color: Colors.orange),
-        onPressed: () {});
+        icon: Icon(Icons.menu, size: 45, color: Colors.red),
+        onPressed: () {print('menuIcon');});
     final searchBox = Padding(
-        padding: EdgeInsets.only(right: MediaQuery.of(context).size.width / 4),
+        padding: EdgeInsets.only(
+            left: 8.0, right: MediaQuery.of(context).size.width / 4),
         child: TextField(
             onChanged: (value) {},
             decoration: InputDecoration(
               hintText: "Search",
               prefixIcon: Icon(Icons.search),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(width: 1, color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(30.0))),
               border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                  borderRadius: BorderRadius.all(Radius.circular(30.0))),
             )));
     final rowOption = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
         InkWell(
           onTap: () {},
           child: Card(
               elevation: 5,
               shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.orange, width: 1),
-                borderRadius: BorderRadius.circular(20.0),
+                side: BorderSide(color: Colors.red, width: 3),
+                borderRadius: BorderRadius.circular(30.0),
               ),
               child: Container(
-                width: 150,
+                width: 130,
                 padding: EdgeInsets.all(5.0),
                 child: Row(
                   children: <Widget>[
@@ -85,7 +89,7 @@ class _DevicePageState extends State<DevicePage> {
                           height: 40,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.orange,
+                            color: Colors.red,
                           ),
                         ),
                         Image.asset(
@@ -109,10 +113,10 @@ class _DevicePageState extends State<DevicePage> {
               elevation: 5,
               shape: RoundedRectangleBorder(
                 side: BorderSide(color: Colors.grey, width: 1),
-                borderRadius: BorderRadius.circular(20.0),
+                borderRadius: BorderRadius.circular(30.0),
               ),
               child: Container(
-                width: 150,
+                width: 130,
                 padding: EdgeInsets.all(5.0),
                 child: Row(
                   children: <Widget>[
@@ -124,7 +128,7 @@ class _DevicePageState extends State<DevicePage> {
                           height: 40,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.orange,
+                            color: Colors.red,
                           ),
                         ),
                         Image.asset(
@@ -160,7 +164,7 @@ class _DevicePageState extends State<DevicePage> {
                   padding: const EdgeInsets.all(5.0),
                   child: Icon(
                     index % 2 == 0 ? Icons.check_circle : Icons.account_circle,
-                    color: index % 2 == 0 ? Colors.green : Colors.yellow,
+                    color: index % 2 == 0 ? Colors.green : Colors.orange,
                   ),
                 )
               ]),
@@ -182,63 +186,72 @@ class _DevicePageState extends State<DevicePage> {
       autoplay: true,
       pagination: SwiperPagination(
           alignment: Alignment.bottomLeft,
-          builder: FractionPaginationBuilder(color: Colors.red)),
+          builder: FractionPaginationBuilder(color: Colors.blue)),
     );
 
     return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          CustomPaint(
-            painter: ShapesPainter(),
+        body: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+              colors: [Colors.blue, Colors.red],
+              begin: Alignment.topLeft,
+              end: Alignment.topRight,
+            )),
+            padding: EdgeInsets.all(8.0),
             child: Container(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListView(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        menuIcon,
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            "Device\n\t\tManagement",
-                            style: TextStyle(
-                                fontSize: 28, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 30),
-                    searchBox,
-                    SizedBox(height: 30),
-                    rowOption,
-                    SizedBox(height: 30),
-                    SizedBox(
-                      height: 250,
-                      child: swipeImages,
-                    )
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Container(
-              alignment: Alignment.topRight,
-              padding: EdgeInsets.only(top: 125),
-              child: Container(
-                width: 50,
-                height: 50,
                 decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(50)),
-                child: IconButton(
-                    icon: Icon(Icons.photo_camera, color: Colors.white),
-                    onPressed: () {}),
-              ))
-        ],
-      ),
-    );
+                    color: Colors.white60,
+                    borderRadius: BorderRadius.circular(20)),
+                child: Stack(
+                  children: <Widget>[
+                    CustomPaint(
+                      painter: ShapesPainter(),
+                      child: Container(
+                        child: ListView(
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                menuIcon,
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Text(
+                                    "Device\n\t\tManagement",
+                                    style: TextStyle(
+                                        fontSize: 30,),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 30),
+                            searchBox,
+                            SizedBox(height: 30),
+                            rowOption,
+                            SizedBox(height: 30),
+                            SizedBox(
+                              height: 250,
+                              child: swipeImages,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                        alignment: Alignment.topRight,
+                        padding: EdgeInsets.only(top: 125),
+                        child: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(50)),
+                          child: IconButton(
+                              icon:
+                                  Icon(Icons.photo_camera, color: Colors.white),
+                              onPressed: () {}),
+                        ))
+                  ],
+                ))));
   }
 }
 
@@ -246,14 +259,9 @@ class ShapesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
-    // set the color property of the paint
-    paint.color = Colors.blue;
     double width = size.width;
 
-    const List<Color> orangeGradients = [
-      Colors.blue,
-      Colors.orange,
-    ];
+    const List<Color> orangeGradients = [Colors.blue, Colors.red];
 
     Gradient gradient = LinearGradient(
       colors: orangeGradients,

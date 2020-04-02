@@ -41,8 +41,8 @@ class AppComponentState extends State<AppComponent> {
       supportedLocales: S.delegate.supportedLocales,
       debugShowCheckedModeBanner: false,
       theme: new ThemeData(
-        cursorColor: Colors.orange,
-        primarySwatch: Colors.orange,
+        cursorColor: Colors.red,
+        primarySwatch: Colors.red,
       ),
       onGenerateRoute: _application.router.generator,
     );
