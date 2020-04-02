@@ -6,9 +6,7 @@ import 'package:device_management/generated/i18n.dart';
 import 'package:device_management/utility/log/Log.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-
 class AppComponent extends StatefulWidget {
-
   final AppStoreApplication _application;
 
   AppComponent(this._application);
@@ -20,13 +18,12 @@ class AppComponent extends StatefulWidget {
 }
 
 class AppComponentState extends State<AppComponent> {
-
   final AppStoreApplication _application;
 
   AppComponentState(this._application);
 
   @override
-  void dispose()async{
+  void dispose() async {
     Log.info('dispose');
     super.dispose();
     await _application.onTerminate();
@@ -34,20 +31,20 @@ class AppComponentState extends State<AppComponent> {
 
   @override
   Widget build(BuildContext context) {
-
     final app = new MaterialApp(
-        title: Env.value.appName,
-        localizationsDelegates: [
-          S.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-        debugShowCheckedModeBanner: false,
-        theme: new ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        onGenerateRoute: _application.router.generator,
+      title: Env.value.appName,
+      localizationsDelegates: [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      debugShowCheckedModeBanner: false,
+      theme: new ThemeData(
+        cursorColor: Colors.orange,
+        primarySwatch: Colors.orange,
+      ),
+      onGenerateRoute: _application.router.generator,
     );
     print('initial core.route = ${app.initialRoute}');
 
