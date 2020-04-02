@@ -47,9 +47,12 @@ class _DevicePageState extends State<DevicePage> {
 
   @override
   Widget build(BuildContext context) {
-    final menuIcon = Icon(Icons.menu, size: 40, color: Colors.orange);
+    final menuIcon = IconButton(
+        padding: EdgeInsets.all(0.0),
+        icon: Icon(Icons.menu, size: 45, color: Colors.orange),
+        onPressed: () {});
     final searchBox = Padding(
-        padding: const EdgeInsets.only(left: 20, right: 20),
+        padding: EdgeInsets.only(right: MediaQuery.of(context).size.width / 4),
         child: TextField(
             onChanged: (value) {},
             decoration: InputDecoration(
@@ -61,76 +64,84 @@ class _DevicePageState extends State<DevicePage> {
     final rowOption = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Container(
-          width: 150,
-          padding: EdgeInsets.all(5.0),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.orange, width: 1.0),
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Row(
-            children: <Widget>[
-              Stack(
-                alignment: Alignment.bottomCenter,
-                children: <Widget>[
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.orange,
+        InkWell(
+          onTap: () {},
+          child: Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: Colors.orange, width: 1),
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              child: Container(
+                width: 150,
+                padding: EdgeInsets.all(5.0),
+                child: Row(
+                  children: <Widget>[
+                    Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: <Widget>[
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        Image.asset(
+                          'assets/devices.png',
+                          width: 40,
+                          height: 40,
+                        ),
+                      ],
                     ),
-                  ),
-                  Image.asset(
-                    'assets/devices.png',
-                    width: 40,
-                    height: 40,
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text('All Devices')
-            ],
-          ),
-        ),
-        Container(
-          width: 150,
-          padding: EdgeInsets.all(5.0),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey, width: 1.0),
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Row(
-            children: <Widget>[
-              Stack(
-                alignment: Alignment.bottomCenter,
-                children: <Widget>[
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.orange,
+                    SizedBox(
+                      width: 5,
                     ),
-                  ),
-                  Image.asset(
-                    'assets/available.png',
-                    width: 40,
-                    height: 40,
-                  ),
-                ],
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text('Available')
-            ],
-          ),
+                    Text('All Devices'),
+                  ],
+                ),
+              )),
         ),
+        InkWell(
+          onTap: () {},
+          child: Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: Colors.grey, width: 1),
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              child: Container(
+                width: 150,
+                padding: EdgeInsets.all(5.0),
+                child: Row(
+                  children: <Widget>[
+                    Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: <Widget>[
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.orange,
+                          ),
+                        ),
+                        Image.asset(
+                          'assets/available.png',
+                          width: 40,
+                          height: 40,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text('Available'),
+                  ],
+                ),
+              )),
+        )
       ],
     );
 
@@ -175,40 +186,57 @@ class _DevicePageState extends State<DevicePage> {
     );
 
     return Scaffold(
-      body: CustomPaint(
-        painter: ShapesPainter(),
-        child: Container(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ListView(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Stack(
+        children: <Widget>[
+          CustomPaint(
+            painter: ShapesPainter(),
+            child: Container(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView(
                   children: <Widget>[
-                    menuIcon,
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(
-                        "Device\n\t\tManagement",
-                        style: TextStyle(
-                            fontSize: 28, fontWeight: FontWeight.bold),
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        menuIcon,
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Text(
+                            "Device\n\t\tManagement",
+                            style: TextStyle(
+                                fontSize: 28, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
                     ),
+                    SizedBox(height: 30),
+                    searchBox,
+                    SizedBox(height: 30),
+                    rowOption,
+                    SizedBox(height: 30),
+                    SizedBox(
+                      height: 250,
+                      child: swipeImages,
+                    )
                   ],
                 ),
-                SizedBox(height: 30),
-                searchBox,
-                SizedBox(height: 30),
-                rowOption,
-                SizedBox(height: 30),
-                SizedBox(
-                  height: 250,
-                  child: swipeImages,
-                )
-              ],
+              ),
             ),
           ),
-        ),
+          Container(
+              alignment: Alignment.topRight,
+              padding: EdgeInsets.only(top: 125),
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(50)),
+                child: IconButton(
+                    icon: Icon(Icons.photo_camera, color: Colors.white),
+                    onPressed: () {}),
+              ))
+        ],
       ),
     );
   }
@@ -223,8 +251,8 @@ class ShapesPainter extends CustomPainter {
     double width = size.width;
 
     const List<Color> orangeGradients = [
-      Colors.yellowAccent,
-      Colors.redAccent,
+      Colors.blue,
+      Colors.orange,
     ];
 
     Gradient gradient = LinearGradient(
