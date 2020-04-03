@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 
 class Device {
   String nameDevice;
-  String serialName;
+  String serialNumber;
   String osVersion;
-  String person;
+  String nameHolder;
+  String emailHolder;
   String dateTime;
-  Color color;
+  List<String> listImages;
 
-  Device(this.nameDevice, this.serialName, this.osVersion, this.person,
-      this.dateTime);
+  Device(this.nameDevice, this.serialNumber, this.osVersion, this.nameHolder,
+      this.emailHolder, this.dateTime, this.listImages);
 
   factory Device.fromJson(Map<String, dynamic> json) => _$EntryFromJson(json);
 
@@ -17,28 +18,34 @@ class Device {
 
   @override
   String toString() {
-    return 'Device{nameDevice: $nameDevice, serialName: $serialName, osVersion: $osVersion, person: $person, dateTime: $dateTime}';
+    return 'Device{nameDevice: $nameDevice, serialNumber: $serialNumber, osVersion: $osVersion, nameHolder: $nameHolder, emailHolder: $emailHolder, dateTime: $dateTime, listImages: $listImages}';
   }
 
-
+  bool isAvailable() {
+    return emailHolder.length == 0;
+  }
 }
 
 _$EntryFromJson(json) {
   return Device(
     json['nameDevice'],
-    json['serialName'],
+    json['serialNumber'],
     json['osVersion'],
-    json['person'],
+    json['nameHolder'],
+    json['emailHolder'],
     json['dateTime'],
+    json['listImages'].toString().split(","),
   );
 }
 
 _$EntryToJson(Device device) {
   return {
     'nameDevice': device.nameDevice,
-    'serialName': device.serialName,
+    'serialNumber': device.serialNumber,
     'osVersion': device.osVersion,
-    'person': device.person,
+    'nameHolder': device.nameHolder,
+    'emailHolder': device.emailHolder,
     'dateTime': device.dateTime,
+    'listImages': device.listImages.toString(),
   };
 }

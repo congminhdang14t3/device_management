@@ -27,13 +27,14 @@ class DevicePage extends StatefulWidget {
 }
 
 class _DevicePageState extends State<DevicePage> {
-  String text = 'loading...';
+  TextEditingController _controller;
   DeviceBloc bloc;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _controller = TextEditingController();
     KeyboardVisibilityNotification().addNewListener(
       onChange: (bool visible) {
         print(visible);
@@ -62,142 +63,186 @@ class _DevicePageState extends State<DevicePage> {
     final menuIcon = IconButton(
         padding: EdgeInsets.only(left: 5.0),
         icon: Icon(Icons.menu, size: 45, color: Colors.red),
-        onPressed: () {
-          print('menuIcon');
-        });
+        onPressed: () {});
     final searchBox = Padding(
         padding: EdgeInsets.only(left: 10.0, right: 60),
-        child: TextField(
-            onChanged: (value) {},
-            decoration: InputDecoration(
-              hintText: "Search",
-              prefixIcon: Icon(Icons.search),
-              focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(width: 1, color: Colors.red),
-                  borderRadius: BorderRadius.all(Radius.circular(30.0))),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(30.0))),
-            )));
+        child: StreamBuilder(
+            stream: bloc.searchText,
+            builder: (context, snapshot) {
+              String searchText = snapshot.data;
+              return TextField(
+                  controller: _controller,
+                  onChanged: bloc.searchDevice,
+                  decoration: InputDecoration(
+                    hintText: "Search...",
+                    prefixIcon: Icon(Icons.search),
+                    suffixIcon: null != searchText && searchText.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.close,
+                              color: Colors.blue,
+                            ),
+                            onPressed: () {
+                              bloc.searchDevice('');
+                              _controller.clear();
+                            })
+                        : null,
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 1, color: Colors.red),
+                        borderRadius: BorderRadius.all(Radius.circular(30.0))),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(30.0))),
+                  ));
+            }));
     final rowOption = Padding(
         padding: EdgeInsets.only(left: 10, right: 60),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            InkWell(
-              onTap: () {},
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30.0),
-                    border: Border.all(width: 3, color: Colors.red)),
-                width: 130,
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  children: <Widget>[
-                    Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: <Widget>[
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.red,
+        child: StreamBuilder(
+            initialData: true,
+            stream: bloc.isAllDevices,
+            builder: (context, snapshot) {
+              bool isAllDevices = snapshot.data;
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  InkWell(
+                    onTap: () => bloc.chooseOptions(true),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30.0),
+                          border: isAllDevices
+                              ? Border.all(width: 3, color: Colors.red)
+                              : Border.all(width: 1, color: Colors.grey)),
+                      width: 130,
+                      padding: EdgeInsets.all(5.0),
+                      child: Row(
+                        children: <Widget>[
+                          Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: <Widget>[
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              Image.asset(
+                                'assets/devices.png',
+                                width: 40,
+                                height: 40,
+                              ),
+                            ],
                           ),
-                        ),
-                        Image.asset(
-                          'assets/devices.png',
-                          width: 40,
-                          height: 40,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text('All Devices'),
-                  ],
-                ),
-              ),
-            ),
-            InkWell(
-              onTap: () {},
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30.0),
-                    border: Border.all(width: 1, color: Colors.grey)),
-                width: 130,
-                padding: EdgeInsets.all(5.0),
-                child: Row(
-                  children: <Widget>[
-                    Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: <Widget>[
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.red,
+                          SizedBox(
+                            width: 5,
                           ),
-                        ),
-                        Image.asset(
-                          'assets/available.png',
-                          width: 40,
-                          height: 40,
-                        ),
-                      ],
+                          Text('All Devices'),
+                        ],
+                      ),
                     ),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text('Available'),
-                  ],
-                ),
-              ),
-            )
-          ],
-        ));
-
-    final swipeImages = new Swiper(
-      itemBuilder: (BuildContext context, int index) {
-        return Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          elevation: 2,
-          child: Column(
-            children: <Widget>[
-              Row(children: <Widget>[
-                Expanded(child: Center(child: Text("Iphone 11 Pro Max"))),
-                Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Icon(
-                    index % 2 == 0 ? Icons.check_circle : Icons.account_circle,
-                    color: index % 2 == 0 ? Colors.green : Colors.orange,
                   ),
-                )
-              ]),
-              Expanded(
-                child: CachedNetworkImage(
-                    imageUrl:
-                        'https://cdn.tmobile.com/content/dam/t-mobile/en-p/cell-phones/apple/Apple-iPhone-11-Pro/Midnight-Green/Apple-iPhone-11-Pro-Midnight-Green-frontimage.jpg',
-                    errorWidget: (context, url, error) => new Icon(Icons.error),
-                    fadeOutDuration: new Duration(seconds: 1),
-                    fadeInDuration: new Duration(seconds: 1)),
-              )
-            ],
-          ),
+                  InkWell(
+                    onTap: () => bloc.chooseOptions(false),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30.0),
+                          border: isAllDevices
+                              ? Border.all(width: 1, color: Colors.grey)
+                              : Border.all(width: 3, color: Colors.red)),
+                      width: 130,
+                      padding: EdgeInsets.all(5.0),
+                      child: Row(
+                        children: <Widget>[
+                          Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: <Widget>[
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.red,
+                                ),
+                              ),
+                              Image.asset(
+                                'assets/available.png',
+                                width: 40,
+                                height: 40,
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text('Available'),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              );
+            }));
+
+    final swipeImages = StreamBuilder(
+      stream: bloc.getListDevices,
+      builder: (context, snapshot) {
+        List<Device> listDevices = snapshot.data;
+        if (listDevices != null && listDevices.isNotEmpty) {
+          return Swiper(
+            key: GlobalKey(),
+            itemBuilder: (BuildContext context, int index) {
+              return Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                elevation: 3,
+                child: Column(
+                  children: <Widget>[
+                    Row(children: <Widget>[
+                      Expanded(
+                          child: Center(
+                              child: Text(listDevices[index].nameDevice))),
+                      Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Icon(
+                          listDevices[index].isAvailable()
+                              ? Icons.check_circle
+                              : Icons.account_circle,
+                          color: listDevices[index].isAvailable()
+                              ? Colors.green
+                              : Colors.orange,
+                        ),
+                      )
+                    ]),
+                    Expanded(
+                      child: CachedNetworkImage(
+                          imageUrl: listDevices[index].listImages[0],
+                          errorWidget: (context, url, error) =>
+                              new Icon(Icons.error),
+                          fadeOutDuration: new Duration(seconds: 1),
+                          fadeInDuration: new Duration(seconds: 1)),
+                    )
+                  ],
+                ),
+              );
+            },
+            itemCount: listDevices.length,
+            viewportFraction: 0.6,
+            scale: 0.8,
+            autoplay: true,
+            pagination: SwiperPagination(
+                alignment: Alignment.bottomLeft,
+                builder: FractionPaginationBuilder(
+                    color: Colors.blue, fontSize: 30)),
+          );
+        }
+        return Center(
+          child: Text('List Empty.'),
         );
       },
-      itemCount: 4,
-      viewportFraction: 0.6,
-      scale: 0.8,
-      autoplay: true,
-      pagination: SwiperPagination(
-          alignment: Alignment.bottomLeft,
-          builder: FractionPaginationBuilder(color: Colors.blue,fontSize: 30)),
     );
 
     return Scaffold(
@@ -226,7 +271,7 @@ class _DevicePageState extends State<DevicePage> {
                                 menuIcon,
                                 Padding(
                                   padding: const EdgeInsets.all(15.0),
-                                  child: Text(
+                                  child: const Text(
                                     "Device\n\t\t\tManagement",
                                     style: TextStyle(
                                       fontSize: 30,

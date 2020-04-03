@@ -74,7 +74,6 @@ class _DeviceDetailPageState extends State<DeviceDetailPage> {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
         child: Container(
-          color: widget.list[index].color.withOpacity(0.4),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
