@@ -12,6 +12,7 @@ import 'package:device_management/app/ui/page/AppDetailPage.dart';
 import 'package:device_management/generated/i18n.dart';
 import 'package:device_management/utility/widget/StreamListItem.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:keyboard_visibility/keyboard_visibility.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'dart:math' as math;
 import 'DeviceDeitalPage.dart';
@@ -28,6 +29,17 @@ class DevicePage extends StatefulWidget {
 class _DevicePageState extends State<DevicePage> {
   String text = 'loading...';
   DeviceBloc bloc;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    KeyboardVisibilityNotification().addNewListener(
+      onChange: (bool visible) {
+        print(visible);
+      },
+    );
+  }
 
   @override
   void didChangeDependencies() {
@@ -48,12 +60,13 @@ class _DevicePageState extends State<DevicePage> {
   @override
   Widget build(BuildContext context) {
     final menuIcon = IconButton(
-        padding: EdgeInsets.all(0.0),
+        padding: EdgeInsets.only(left: 5.0),
         icon: Icon(Icons.menu, size: 45, color: Colors.red),
-        onPressed: () {print('menuIcon');});
+        onPressed: () {
+          print('menuIcon');
+        });
     final searchBox = Padding(
-        padding: EdgeInsets.only(
-            left: 8.0, right: MediaQuery.of(context).size.width / 4),
+        padding: EdgeInsets.only(left: 10.0, right: 60),
         child: TextField(
             onChanged: (value) {},
             decoration: InputDecoration(
@@ -65,18 +78,18 @@ class _DevicePageState extends State<DevicePage> {
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(30.0))),
             )));
-    final rowOption = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: <Widget>[
-        InkWell(
-          onTap: () {},
-          child: Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.red, width: 3),
-                borderRadius: BorderRadius.circular(30.0),
-              ),
+    final rowOption = Padding(
+        padding: EdgeInsets.only(left: 10, right: 60),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            InkWell(
+              onTap: () {},
               child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30.0),
+                    border: Border.all(width: 3, color: Colors.red)),
                 width: 130,
                 padding: EdgeInsets.all(5.0),
                 child: Row(
@@ -105,17 +118,15 @@ class _DevicePageState extends State<DevicePage> {
                     Text('All Devices'),
                   ],
                 ),
-              )),
-        ),
-        InkWell(
-          onTap: () {},
-          child: Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                side: BorderSide(color: Colors.grey, width: 1),
-                borderRadius: BorderRadius.circular(30.0),
               ),
+            ),
+            InkWell(
+              onTap: () {},
               child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30.0),
+                    border: Border.all(width: 1, color: Colors.grey)),
                 width: 130,
                 padding: EdgeInsets.all(5.0),
                 child: Row(
@@ -144,10 +155,10 @@ class _DevicePageState extends State<DevicePage> {
                     Text('Available'),
                   ],
                 ),
-              )),
-        )
-      ],
-    );
+              ),
+            )
+          ],
+        ));
 
     final swipeImages = new Swiper(
       itemBuilder: (BuildContext context, int index) {
@@ -159,7 +170,7 @@ class _DevicePageState extends State<DevicePage> {
           child: Column(
             children: <Widget>[
               Row(children: <Widget>[
-                Expanded(child: Center(child: Text("Flutter $index"))),
+                Expanded(child: Center(child: Text("Iphone 11 Pro Max"))),
                 Padding(
                   padding: const EdgeInsets.all(5.0),
                   child: Icon(
@@ -186,7 +197,7 @@ class _DevicePageState extends State<DevicePage> {
       autoplay: true,
       pagination: SwiperPagination(
           alignment: Alignment.bottomLeft,
-          builder: FractionPaginationBuilder(color: Colors.blue)),
+          builder: FractionPaginationBuilder(color: Colors.blue,fontSize: 30)),
     );
 
     return Scaffold(
@@ -206,30 +217,31 @@ class _DevicePageState extends State<DevicePage> {
                   children: <Widget>[
                     CustomPaint(
                       painter: ShapesPainter(),
-                      child: Container(
-                        child: ListView(
+                      child: SingleChildScrollView(
+                        child: Column(
                           children: <Widget>[
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: <Widget>[
                                 menuIcon,
                                 Padding(
-                                  padding: const EdgeInsets.all(10.0),
+                                  padding: const EdgeInsets.all(15.0),
                                   child: Text(
-                                    "Device\n\t\tManagement",
+                                    "Device\n\t\t\tManagement",
                                     style: TextStyle(
-                                        fontSize: 30,),
+                                      fontSize: 30,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 30),
+                            SizedBox(height: 35),
                             searchBox,
                             SizedBox(height: 30),
                             rowOption,
                             SizedBox(height: 30),
                             SizedBox(
-                              height: 250,
+                              height: MediaQuery.of(context).size.height - 350,
                               child: swipeImages,
                             )
                           ],
