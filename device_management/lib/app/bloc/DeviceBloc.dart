@@ -14,6 +14,7 @@ class DeviceBloc {
 
   final _isShowLoading = BehaviorSubject<bool>();
   final _isAllDevices = BehaviorSubject<bool>();
+  final _isShowKeyBoard = BehaviorSubject<bool>();
   final _searchText = BehaviorSubject<String>();
   final _getListDevices = BehaviorSubject<List<Device>>();
 
@@ -24,6 +25,8 @@ class DeviceBloc {
   Stream<String> get searchText => _searchText.stream;
 
   Stream<List<Device>> get getListDevices => _getListDevices.stream;
+
+  Stream<bool> get isShowKeyBoard => _isShowKeyBoard.stream;
 
   DeviceBloc(this._application) {
     _init();
@@ -79,6 +82,10 @@ class DeviceBloc {
       }
       createList();
     });
+  }
+
+  void keyBoardEvent(bool isShow) {
+    _isShowKeyBoard.add(isShow);
   }
 
   void searchDevice(String search) {

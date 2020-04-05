@@ -2,122 +2,205 @@ import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:device_management/app/model/pojo/Device.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:liquid_swipe/liquid_swipe.dart';
 
 class DeviceDetailPage extends StatefulWidget {
-  List<Device> list;
   static const String PATH = '/detail';
+  final Device device;
 
-  DeviceDetailPage({Key key, this.list}) : super(key: key);
+  DeviceDetailPage({this.device});
 
   @override
-  _DeviceDetailPageState createState() => _DeviceDetailPageState();
+  DeviceDetailPageState createState() => DeviceDetailPageState();
 }
 
-class _DeviceDetailPageState extends State<DeviceDetailPage> {
-  static final style = TextStyle(
-    fontSize: 30,
-    fontFamily: "Billy",
-    fontWeight: FontWeight.w600,
-  );
-
+class DeviceDetailPageState extends State<DeviceDetailPage> {
   int page = 0;
 
-  Widget _buildDot(int index) {
-    double selectedness = Curves.easeOut.transform(
-      max(
-        0.0,
-        1.0 - ((page ?? 0) - index).abs(),
-      ),
-    );
-    double zoom = 1.0 + (2.0 - 1.0) * selectedness;
-    return new Container(
-      width: 25.0,
-      child: new Center(
-        child: new Material(
-          color: Colors.black,
-          type: MaterialType.circle,
-          child: new Container(
-            width: 8.0 * zoom,
-            height: 8.0 * zoom,
-          ),
-        ),
-      ),
-    );
-  }
+  UpdateType updateType;
 
-  Widget _build(int index) {
-    return Padding(
-      padding: const EdgeInsets.all(3.0),
-      child: Container(
-        color: page == index ? Colors.orange : Colors.black,
-        width: 10,
-        height: page == index ? 40 : 30,
-      ),
-    );
-  }
+  final colors = [Colors.green, Colors.red, Colors.cyan];
 
-  Widget itemDetail(index) {
+  Container itemDevice(int index) {
     return Container(
-      constraints: BoxConstraints.expand(),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: CachedNetworkImageProvider(index % 2 == 0
-              ? 'https://cdn.tgdd.vn/Products/Images/42/188705/iphone-11-pro-black-400x400.jpg'
-              : 'https://cdn.fptshop.com.vn/Uploads/Originals/2019/2/21/636863643187455627_ss-galaxy-s10-trang-1.png'),
-          fit: BoxFit.fill,
-        ),
-      ),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
-        child: Container(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+      color: Colors.white,
+      child: Stack(
+        children: <Widget>[
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              Text("AAA"),
-              Container(height: 100,color: Colors.red,),
-              Text("AAA"),
+              Expanded(
+                child: Container(
+                    constraints: BoxConstraints.expand(),
+                    alignment: Alignment.center,
+                    child: CachedNetworkImage(
+                        height: 300,
+                        imageUrl: widget.device.listImages[index].trim())),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List<Widget>.generate(
+                    widget.device.listImages.length, _buildDot),
+              ),
+              SizedBox(
+                height: 160,
+              )
             ],
           ),
-        ),
+          Container(color: colors[index].withOpacity(0.2)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDot(int index) {
+    return Container(
+      padding: EdgeInsets.all(5.0),
+      decoration: BoxDecoration(
+          border: Border.all(
+              color: index == page ? colors[index] : Colors.grey,
+              width: index == page ? 3 : 1),
+          borderRadius: BorderRadius.circular(20.0)),
+      child: CachedNetworkImage(
+          width: 70,
+          height: 40,
+          imageUrl: widget.device.listImages[index].trim()),
+    );
+  }
+
+  Widget _detailWidget() {
+    return Container(
+      constraints: BoxConstraints.expand(height: 200),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.5,
+        builder: (context, scrollController) {
+          return Container(
+            padding: EdgeInsets.only(left: 10, right: 10),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(50),
+                  topRight: Radius.circular(50),
+                ),
+                color: Colors.blue[300]),
+            child: SingleChildScrollView(
+              controller: scrollController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(height: 5),
+                  Container(
+                    alignment: Alignment.center,
+                    child: Container(
+                      width: 50,
+                      height: 5,
+                      decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.all(Radius.circular(10))),
+                    ),
+                  ),
+                  Container(
+                    constraints: BoxConstraints.expand(height: 40),
+                    alignment: Alignment.center,
+                    child: Text(
+                      widget.device.nameDevice,
+                      style: TextStyle(fontSize: 25),
+                    ),
+                  ),
+                  Container(height: 2, color: Colors.white),
+                  Container(
+                    constraints: BoxConstraints.expand(height: 48),
+                    child: Row(
+                      children: <Widget>[
+                        Text("OS version - ", style: TextStyle(fontSize: 20)),
+                        Text(widget.device.osVersion,
+                            style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                fontSize: 20,
+                                color: Colors.yellow))
+                      ],
+                    ),
+                  ),
+                  Container(height: 2, color: Colors.white),
+                  Container(
+                    constraints: BoxConstraints.expand(height: 48),
+                    child: Row(
+                      children: <Widget>[
+                        Text("Holder - ", style: TextStyle(fontSize: 20)),
+                        Text(
+                            widget.device.isAvailable()
+                                ? "Availabe"
+                                : widget.device.nameHolder,
+                            style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                fontSize: 20,
+                                color: Colors.yellow))
+                      ],
+                    ),
+                  ),
+                  Container(height: 2, color: Colors.white),
+                  Container(
+                    constraints: BoxConstraints.expand(height: 48),
+                    child: Row(
+                      children: <Widget>[
+                        Text("Time hold phone - ",
+                            style: TextStyle(fontSize: 20)),
+                        Text(
+                            widget.device.isAvailable()
+                                ? "Availabe"
+                                : widget.device.dateTime,
+                            style: TextStyle(
+                                fontStyle: FontStyle.italic,
+                                fontSize: 20,
+                                color: Colors.yellow))
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    List<String> images = widget.device.listImages;
+//    print('AAA: ' + images.toString());
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Detail"),
-      ),
-      body: Stack(
+        body: Container(
+      constraints: BoxConstraints.expand(),
+      child: Stack(
+        alignment: Alignment.bottomCenter,
         children: <Widget>[
-          LiquidSwipe(
-            pages: List<Container>.generate(
-                widget.list.length, (index) => itemDetail(index)).toList(),
-            enableLoop: true,
-            onPageChangeCallback: pageChangeCallback,
-            waveType: WaveType.liquidReveal,
-          ),
-//          Padding(
-//            padding: EdgeInsets.all(20),
-//            child: Column(
-//              children: <Widget>[
-//                Expanded(child: SizedBox()),
-//                Row(
-//                  mainAxisAlignment: MainAxisAlignment.start,
-//                  crossAxisAlignment: CrossAxisAlignment.end,
-//                  children: List<Widget>.generate(5, _build),
-//                ),
-//              ],
-//            ),
-//          ),
+          Container(
+//              constraints: BoxConstraints.expand(height: 350),
+              child: Column(
+            children: <Widget>[
+              Expanded(
+                  child: LiquidSwipe(
+                pages:
+                    List.generate(images.length, (index) => itemDevice(index))
+                        .toList(),
+                enableLoop: true,
+                enableSlideIcon: true,
+                positionSlideIcon: 0.2,
+                slideIconWidget: Icon(Icons.arrow_back_ios),
+                onPageChangeCallback: pageChangeCallback,
+              )),
+              Container(
+                height: 50,
+              )
+            ],
+          )),
+          _detailWidget()
         ],
       ),
-    );
+    ));
   }
 
   pageChangeCallback(int lpage) {

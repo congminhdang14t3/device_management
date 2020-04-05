@@ -27,6 +27,9 @@ class Device {
 }
 
 _$EntryFromJson(json) {
+  List<String> images =
+      json['listImages'].toString().split(",").map((e) => e.trim()).toList();
+
   return Device(
     json['nameDevice'],
     json['serialNumber'],
@@ -34,7 +37,7 @@ _$EntryFromJson(json) {
     json['nameHolder'],
     json['emailHolder'],
     json['dateTime'],
-    json['listImages'].toString().split(","),
+    images,
   );
 }
 

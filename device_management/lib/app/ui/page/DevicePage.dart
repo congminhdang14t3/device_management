@@ -29,21 +29,18 @@ class DevicePage extends StatefulWidget {
 class _DevicePageState extends State<DevicePage> {
   TextEditingController _controller;
   DeviceBloc bloc;
+  bool _isShowKeyBoard;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _controller = TextEditingController();
-    KeyboardVisibilityNotification().addNewListener(
-      onChange: (bool visible) {
-        print(visible);
-      },
-    );
+    _isShowKeyBoard = false;
   }
 
   @override
   void didChangeDependencies() {
+    super.didChangeDependencies();
     if (null == bloc) {
       bloc = DeviceBloc(AppProvider.getApplication(context));
       bloc.isShowLoading.listen((bool isLoading) {
@@ -55,15 +52,46 @@ class _DevicePageState extends State<DevicePage> {
       });
       bloc.loadListDevices();
     }
-    super.didChangeDependencies();
+
+    KeyboardVisibilityNotification().addNewListener(
+      onChange: (bool visible) {
+        bloc.keyBoardEvent(visible);
+        setState(() {
+          _isShowKeyBoard = visible;
+        });
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final menuIcon = IconButton(
-        padding: EdgeInsets.only(left: 5.0),
-        icon: Icon(Icons.menu, size: 45, color: Colors.red),
-        onPressed: () {});
+    final menuBar = StreamBuilder(
+      initialData: false,
+      stream: bloc.isShowKeyBoard,
+      builder: (context, snapshot) {
+        if (snapshot.data) {
+          return SizedBox.shrink();
+        }
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            IconButton(
+                padding: EdgeInsets.only(left: 5.0),
+                icon: Icon(Icons.menu, size: 45, color: Colors.red),
+                onPressed: () {}),
+            const Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: const Text(
+                "Device\n\t\t\tManagement",
+                style: TextStyle(
+                  fontSize: 30,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
     final searchBox = Padding(
         padding: EdgeInsets.only(left: 10.0, right: 60),
         child: StreamBuilder(
@@ -74,6 +102,8 @@ class _DevicePageState extends State<DevicePage> {
                   controller: _controller,
                   onChanged: bloc.searchDevice,
                   decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white70,
                     hintText: "Search...",
                     prefixIcon: Icon(Icons.search),
                     suffixIcon: null != searchText && searchText.isNotEmpty
@@ -192,7 +222,11 @@ class _DevicePageState extends State<DevicePage> {
         List<Device> listDevices = snapshot.data;
         if (listDevices != null && listDevices.isNotEmpty) {
           return Swiper(
+            itemCount: listDevices.length,
             key: GlobalKey(),
+            viewportFraction: 0.6,
+            scale: 0.8,
+            autoplay: true,
             itemBuilder: (BuildContext context, int index) {
               return Card(
                 shape: RoundedRectangleBorder(
@@ -229,12 +263,16 @@ class _DevicePageState extends State<DevicePage> {
                 ),
               );
             },
-            itemCount: listDevices.length,
-            viewportFraction: 0.6,
-            scale: 0.8,
-            autoplay: true,
+            onTap: (index) => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => DeviceDetailPage(
+                          device: listDevices[index],
+                        ))),
             pagination: SwiperPagination(
-                alignment: Alignment.bottomLeft,
+                margin: EdgeInsets.all(0),
+                alignment:
+                    _isShowKeyBoard ? Alignment.topLeft : Alignment.bottomLeft,
                 builder: FractionPaginationBuilder(
                     color: Colors.blue, fontSize: 30)),
           );
@@ -265,21 +303,7 @@ class _DevicePageState extends State<DevicePage> {
                       child: SingleChildScrollView(
                         child: Column(
                           children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                menuIcon,
-                                Padding(
-                                  padding: const EdgeInsets.all(15.0),
-                                  child: const Text(
-                                    "Device\n\t\t\tManagement",
-                                    style: TextStyle(
-                                      fontSize: 30,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                            menuBar,
                             SizedBox(height: 35),
                             searchBox,
                             SizedBox(height: 30),

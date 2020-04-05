@@ -398,7 +398,7 @@ packages:
       name: liquid_swipe
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.4.1"
+    version: "1.4.2"
   logging:
     dependency: "direct main"
     description:
