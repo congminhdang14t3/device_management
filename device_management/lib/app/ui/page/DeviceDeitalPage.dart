@@ -9,8 +9,9 @@ import 'package:liquid_swipe/liquid_swipe.dart';
 class DeviceDetailPage extends StatefulWidget {
   static const String PATH = '/detail';
   final Device device;
+  final int indexImage;
 
-  DeviceDetailPage({this.device});
+  DeviceDetailPage({this.device, this.indexImage});
 
   @override
   DeviceDetailPageState createState() => DeviceDetailPageState();
@@ -21,7 +22,7 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
 
   UpdateType updateType;
 
-  final colors = [Colors.green, Colors.red, Colors.cyan];
+  final colors = [Colors.red, Colors.cyan, Colors.yellow];
 
   Container itemDevice(int index) {
     return Container(
@@ -36,7 +37,7 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
                     constraints: BoxConstraints.expand(),
                     alignment: Alignment.center,
                     child: CachedNetworkImage(
-                        height: 300,
+                        height: 310,
                         imageUrl: widget.device.listImages[index].trim())),
               ),
               Row(
@@ -49,7 +50,7 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
               )
             ],
           ),
-          Container(color: colors[index].withOpacity(0.2)),
+          Container(color: colors[index].withOpacity(0.1)),
         ],
       ),
     );
@@ -72,10 +73,10 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
 
   Widget _detailWidget() {
     return Container(
-      constraints: BoxConstraints.expand(height: 200),
+      constraints: BoxConstraints.expand(height: 150),
       child: DraggableScrollableSheet(
-        initialChildSize: 0.5,
-        minChildSize: 0.5,
+        initialChildSize: 1 / 3,
+        minChildSize: 1 / 3,
         builder: (context, scrollController) {
           return Container(
             padding: EdgeInsets.only(left: 10, right: 10),
@@ -84,7 +85,7 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
                   topLeft: Radius.circular(50),
                   topRight: Radius.circular(50),
                 ),
-                color: Colors.blue[300]),
+                color: Colors.red[300]),
             child: SingleChildScrollView(
               controller: scrollController,
               child: Column(
@@ -132,7 +133,9 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
                         Text(
                             widget.device.isAvailable()
                                 ? "Availabe"
-                                : widget.device.nameHolder,
+                                : widget.device.nameHolder +
+                                    " - " +
+                                    widget.device.dateTime,
                             style: TextStyle(
                                 fontStyle: FontStyle.italic,
                                 fontSize: 20,
@@ -140,24 +143,6 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
                       ],
                     ),
                   ),
-                  Container(height: 2, color: Colors.white),
-                  Container(
-                    constraints: BoxConstraints.expand(height: 48),
-                    child: Row(
-                      children: <Widget>[
-                        Text("Time hold phone - ",
-                            style: TextStyle(fontSize: 20)),
-                        Text(
-                            widget.device.isAvailable()
-                                ? "Availabe"
-                                : widget.device.dateTime,
-                            style: TextStyle(
-                                fontStyle: FontStyle.italic,
-                                fontSize: 20,
-                                color: Colors.yellow))
-                      ],
-                    ),
-                  )
                 ],
               ),
             ),
@@ -172,35 +157,42 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
     List<String> images = widget.device.listImages;
 //    print('AAA: ' + images.toString());
     return Scaffold(
-        body: Container(
-      constraints: BoxConstraints.expand(),
-      child: Stack(
-        alignment: Alignment.bottomCenter,
+        body: Stack(alignment: Alignment.bottomCenter, children: <Widget>[
+      Stack(
         children: <Widget>[
-          Container(
-//              constraints: BoxConstraints.expand(height: 350),
-              child: Column(
+          Column(
             children: <Widget>[
+              Hero(
+                  tag: 'image' + widget.indexImage.toString(),
+                  child: Container(
+                    height: 0,
+                  )),
               Expanded(
-                  child: LiquidSwipe(
-                pages:
-                    List.generate(images.length, (index) => itemDevice(index))
-                        .toList(),
-                enableLoop: true,
-                enableSlideIcon: true,
-                positionSlideIcon: 0.2,
-                slideIconWidget: Icon(Icons.arrow_back_ios),
-                onPageChangeCallback: pageChangeCallback,
-              )),
-              Container(
-                height: 50,
+                child: LiquidSwipe(
+                  pages:
+                      List.generate(images.length, (index) => itemDevice(index))
+                          .toList(),
+                  enableLoop: true,
+                  enableSlideIcon: true,
+                  positionSlideIcon: 0.2,
+                  slideIconWidget: Icon(Icons.arrow_back_ios),
+                  onPageChangeCallback: pageChangeCallback,
+                ),
               )
             ],
-          )),
-          _detailWidget()
+          ),
+          Container(
+              padding: EdgeInsets.all(8.0),
+              alignment: Alignment.bottomRight,
+              constraints: BoxConstraints.expand(height: 80),
+              child: IconButton(
+                  icon: Icon(Icons.clear, size: 35),
+                  onPressed: () => Navigator.pop(context,
+                      {'i1': widget.indexImage, 'i2': page})))
         ],
       ),
-    ));
+      _detailWidget()
+    ]));
   }
 
   pageChangeCallback(int lpage) {

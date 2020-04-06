@@ -16,7 +16,7 @@ class DeviceBloc {
   final _isAllDevices = BehaviorSubject<bool>();
   final _isShowKeyBoard = BehaviorSubject<bool>();
   final _searchText = BehaviorSubject<String>();
-  final _getListDevices = BehaviorSubject<List<Device>>();
+  final _getListDevices = BehaviorSubject<dynamic>();
 
   Stream<bool> get isShowLoading => _isShowLoading.stream;
 
@@ -24,7 +24,7 @@ class DeviceBloc {
 
   Stream<String> get searchText => _searchText.stream;
 
-  Stream<List<Device>> get getListDevices => _getListDevices.stream;
+  Stream<dynamic> get getListDevices => _getListDevices.stream;
 
   Stream<bool> get isShowKeyBoard => _isShowKeyBoard.stream;
 
@@ -37,7 +37,7 @@ class DeviceBloc {
         .debounceTime(const Duration(milliseconds: 1000))
         .listen((String searchText) {
       _searchWords = searchText;
-      createList();
+      createList(0);
     });
   }
 
@@ -80,7 +80,7 @@ class DeviceBloc {
         _list.add(d);
 //        print(d.toString());
       }
-      createList();
+      createList(0);
     });
   }
 
@@ -95,18 +95,21 @@ class DeviceBloc {
   void chooseOptions(bool check) {
     if (check != _isDevices) {
       _isDevices = check;
-      createList();
+      createList(0);
       _isAllDevices.add(check);
 //      print('AAA: ' + check.toString());
     }
   }
 
-  void createList() {
-    _getListDevices.add(_list
-        .where((element) =>
-            (_isDevices ? true : element.isAvailable()) &&
-            (element.nameDevice.toLowerCase().contains(_searchWords)))
-        .toList());
+  void createList(int index) {
+    _getListDevices.add({
+      'list': _list
+          .where((element) =>
+              (_isDevices ? true : element.isAvailable()) &&
+              (element.nameDevice.toLowerCase().contains(_searchWords)))
+          .toList(),
+      'index': index
+    });
   }
 
   Future<void> addDivice() async {
@@ -122,5 +125,19 @@ class DeviceBloc {
         .child('devices/list')
         .push()
         .set(device.toJson());
+  }
+
+  void changeImage(int i1, int i2) {
+    if (i2 == 0) return;
+    Device device = _list[i1];
+
+    List<String> list = device.listImages;
+    String temp = list[0];
+    list[0] = list[i2];
+    list[i2] = temp;
+    device.listImages = list;
+    _list[i1] = device;
+
+    createList(i1);
   }
 }

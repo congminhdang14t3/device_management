@@ -93,7 +93,7 @@ class _DevicePageState extends State<DevicePage> {
       },
     );
     final searchBox = Padding(
-        padding: EdgeInsets.only(left: 10.0, right: 60),
+        padding: EdgeInsets.only(left: 10.0, right: 55),
         child: StreamBuilder(
             stream: bloc.searchText,
             builder: (context, snapshot) {
@@ -125,7 +125,7 @@ class _DevicePageState extends State<DevicePage> {
                   ));
             }));
     final rowOption = Padding(
-        padding: EdgeInsets.only(left: 10, right: 60),
+        padding: EdgeInsets.only(left: 10, right: 55),
         child: StreamBuilder(
             initialData: true,
             stream: bloc.isAllDevices,
@@ -143,7 +143,7 @@ class _DevicePageState extends State<DevicePage> {
                           border: isAllDevices
                               ? Border.all(width: 3, color: Colors.red)
                               : Border.all(width: 1, color: Colors.grey)),
-                      width: 130,
+                      width: 135,
                       padding: EdgeInsets.all(5.0),
                       child: Row(
                         children: <Widget>[
@@ -182,7 +182,7 @@ class _DevicePageState extends State<DevicePage> {
                           border: isAllDevices
                               ? Border.all(width: 1, color: Colors.grey)
                               : Border.all(width: 3, color: Colors.red)),
-                      width: 130,
+                      width: 135,
                       padding: EdgeInsets.all(5.0),
                       child: Row(
                         children: <Widget>[
@@ -219,14 +219,21 @@ class _DevicePageState extends State<DevicePage> {
     final swipeImages = StreamBuilder(
       stream: bloc.getListDevices,
       builder: (context, snapshot) {
-        List<Device> listDevices = snapshot.data;
+        Map<String, dynamic> map = snapshot.data;
+        if (map == null) {
+          return Center(child: Text('List Empty.'));
+        }
+        List<Device> listDevices = map['list'];
+        int index = map['index'];
+//        print('index: '+index.toString());
         if (listDevices != null && listDevices.isNotEmpty) {
           return Swiper(
+            index: index,
             itemCount: listDevices.length,
             key: GlobalKey(),
             viewportFraction: 0.6,
             scale: 0.8,
-            autoplay: true,
+//            autoplay: true,
             itemBuilder: (BuildContext context, int index) {
               return Card(
                 shape: RoundedRectangleBorder(
@@ -252,23 +259,28 @@ class _DevicePageState extends State<DevicePage> {
                       )
                     ]),
                     Expanded(
-                      child: CachedNetworkImage(
-                          imageUrl: listDevices[index].listImages[0],
-                          errorWidget: (context, url, error) =>
-                              new Icon(Icons.error),
-                          fadeOutDuration: new Duration(seconds: 1),
-                          fadeInDuration: new Duration(seconds: 1)),
+                      child: Hero(
+                          tag: 'image$index',
+                          child: CachedNetworkImage(
+                              imageUrl: listDevices[index].listImages[0].trim(),
+                              errorWidget: (context, url, error) =>
+                                  new Icon(Icons.error),
+                              fadeOutDuration: new Duration(seconds: 1),
+                              fadeInDuration: new Duration(seconds: 1))),
                     )
                   ],
                 ),
               );
             },
-            onTap: (index) => Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => DeviceDetailPage(
-                          device: listDevices[index],
-                        ))),
+            onTap: (index) async {
+              final result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => DeviceDetailPage(
+                          device: listDevices[index], indexImage: index)));
+
+              bloc.changeImage(result['i1'], result['i2']);
+            },
             pagination: SwiperPagination(
                 margin: EdgeInsets.all(0),
                 alignment:
@@ -277,9 +289,7 @@ class _DevicePageState extends State<DevicePage> {
                     color: Colors.blue, fontSize: 30)),
           );
         }
-        return Center(
-          child: Text('List Empty.'),
-        );
+        return Center(child: Text('List Empty.'));
       },
     );
 
@@ -308,9 +318,10 @@ class _DevicePageState extends State<DevicePage> {
                             searchBox,
                             SizedBox(height: 30),
                             rowOption,
-                            SizedBox(height: 30),
+                            SizedBox(height: 50),
                             SizedBox(
-                              height: MediaQuery.of(context).size.height - 350,
+//                              height: MediaQuery.of(context).size.height - 350,
+                              height: 280,
                               child: swipeImages,
                             )
                           ],

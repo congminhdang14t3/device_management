@@ -45,7 +45,7 @@ class AppRoutes {
     });
 
     router.define(DevicePage.PATH, handler: rootHandlerDevice);
-    router.define(DeviceDetailPage.PATH, handler: rootHandlerDeviceDetail);
+//    router.define(DeviceDetailPage.PATH, handler: rootHandlerDeviceDetail);
 //    router.define(HomePage.PATH, handler: rootHandler);
 //    router.define(AppDetailPage.PATH, handler: appDetailRouteHandler);
   }
