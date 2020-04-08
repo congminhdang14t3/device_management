@@ -137,7 +137,7 @@ class _DevicePageState extends State<DevicePage> {
                           border: isAllDevices
                               ? Border.all(width: 3, color: Colors.red)
                               : Border.all(width: 1, color: Colors.grey)),
-                      width: 135,
+                      width: 138,
                       padding: EdgeInsets.all(5.0),
                       child: Row(
                         children: <Widget>[
@@ -176,7 +176,7 @@ class _DevicePageState extends State<DevicePage> {
                           border: isAllDevices
                               ? Border.all(width: 1, color: Colors.grey)
                               : Border.all(width: 3, color: Colors.red)),
-                      width: 135,
+                      width: 138,
                       padding: EdgeInsets.all(5.0),
                       child: Row(
                         children: <Widget>[
@@ -219,13 +219,12 @@ class _DevicePageState extends State<DevicePage> {
         }
         List<Device> listDevices = map['list'];
         int index = map['index'];
-        String time = map['time'];
 //        print('index: '+index.toString());
         if (listDevices != null && listDevices.isNotEmpty) {
           return Swiper(
             index: index,
             itemCount: listDevices.length,
-//            key: GlobalKey(),
+            key: GlobalKey(),
             viewportFraction: 0.6,
             scale: 0.8,
 //            autoplay: true,
@@ -311,10 +310,10 @@ class _DevicePageState extends State<DevicePage> {
                             searchBox,
                             SizedBox(height: 30),
                             rowOption,
-                            SizedBox(height: 50),
+                            SizedBox(height: 40),
                             SizedBox(
 //                              height: MediaQuery.of(context).size.height - 350,
-                              height: 280,
+                              height: 290,
                               child: swipeImages,
                             )
                           ],

@@ -103,16 +103,13 @@ class DeviceBloc {
   }
 
   void createList(int index) {
-    String time = Random.secure().nextDouble().toString();
-    print(time);
     _getListDevices.add({
       'list': _list
           .where((element) =>
               (_isDevices ? true : element.isAvailable()) &&
               (element.nameDevice.toLowerCase().contains(_searchWords)))
           .toList(),
-      'index': index,
-      'time': time
+      'index': index
     });
   }
 

@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:device_info/device_info.dart';
 import 'package:device_management/app/model/core/AppStoreApplication.dart';
 import 'package:device_management/app/model/pojo/Device.dart';
 import 'package:device_management/utility/log/Log.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:rxdart/subjects.dart';
@@ -15,56 +17,25 @@ class DeviceInfoBloc {
   CompositeSubscription _compositeSubscription = CompositeSubscription();
 
   final _isShowLoading = BehaviorSubject<bool>();
-  final _getListDevices = BehaviorSubject<dynamic>();
+  final _deviceInfo = BehaviorSubject<dynamic>();
 
   Stream<bool> get isShowLoading => _isShowLoading.stream;
 
-  Stream<dynamic> get getListDevices => _getListDevices.stream;
+  Stream<dynamic> get deviceInfo => _deviceInfo.stream;
 
   DeviceInfoBloc(this._application) {
     _init();
   }
 
   _init() {}
-
-  List<Device> _list = [];
-  bool check = true;
+  List<Device> _listDevices = [];
+  Device _device;
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
 
   void dispose() {
     _compositeSubscription.clear();
     _isShowLoading.close();
-    _getListDevices.close();
-  }
-
-  void loadListDevices() {
-    _isShowLoading.add(true);
-    FirebaseDatabase.instance
-        .reference()
-        .child('devices/list')
-        .onValue
-        .listen((event) {
-      if (check) {
-        _isShowLoading.add(false);
-        check = !check;
-      }
-      Map<dynamic, dynamic> decoded = event.snapshot.value;
-      _list.clear();
-      for (var key in decoded.keys) {
-        String linkImages = decoded[key]['listImages'].toString();
-        Device d = Device(
-          decoded[key]['nameDevice'],
-          decoded[key]['serialNumber'],
-          decoded[key]['osVersion'],
-          decoded[key]['nameHolder'],
-          decoded[key]['emailHolder'],
-          decoded[key]['dateTime'],
-          linkImages.substring(1, linkImages.length - 1).split(","),
-        ); // prints FF0000
-        _list.add(d);
-//        print(d.toString());
-      }
-    });
+    _deviceInfo.close();
   }
 
   void checkDevice() {
@@ -75,7 +46,6 @@ class DeviceInfoBloc {
             (Map<String, dynamic> device, DataSnapshot listDevices) {
       return CombineResponse(device, listDevices);
     }).listen((CombineResponse response) {
-      List<Device> _list = [];
       Map<dynamic, dynamic> decoded = response.snapshotDevices.value;
       for (var key in decoded.keys) {
         String linkImages = decoded[key]['listImages'].toString();
@@ -88,21 +58,71 @@ class DeviceInfoBloc {
           decoded[key]['dateTime'],
           linkImages.substring(1, linkImages.length - 1).split(","),
         ); // prints FF0000
-        _list.add(d);
+        _listDevices.add(d);
       }
 //      print(_list.toString());
       List<String> deviceInfos = [];
       for (var key in response.mapDevice.keys) {
         deviceInfos.add(response.mapDevice[key]);
       }
-      Device device = Device(
+      _device = Device(
           deviceInfos[0], deviceInfos[1], deviceInfos[2], '', '', '', []);
 //      print("AAAAA:: " + device.toString());
+
+      handle();
       _isShowLoading.add(false);
     }, onError: (e, s) {
       Log.info(e);
     });
     _compositeSubscription.add(subscription);
+  }
+
+  void handle() {
+    bool isAdd = false;
+    String updateOS = '';
+    for (var i = 0; i < _listDevices.length; i++) {
+      if (_listDevices[i].serialNumber.contains(_device.serialNumber)) {
+        isAdd = true;
+        _device = _listDevices[i];
+        if (!_listDevices[i].osVersion.contains(_device.osVersion)) {
+          updateOS = _listDevices[i].osVersion;
+        }
+        break;
+      }
+    }
+    _deviceInfo.add({
+      'device': _device,
+      'add': isAdd,
+      'osUpdate': updateOS,
+    });
+  }
+
+  Future<List<String>> getImageFromServer(String nameDevice) async {
+    nameDevice = nameDevice.trim().replaceAll(' ', '+').replaceAll('_', '+');
+    Response response = await Dio().get(
+        'https://app.zenserp.com/api/v2/search?apikey=ba085d20-70a8-11ea-acc6-bd64563d40cd&q=$nameDevice&tbm=isch&device=mobile&num=50');
+    Map<String, dynamic> mapImages = response.data;
+    List<String> images = [];
+    for (var i = 0; i < 3; i++) {
+      images.add(mapImages['image_results'][i]['sourceUrl']);
+      print('AAA: ' + images[i]);
+    }
+    return images;
+  }
+
+  void addDevice() async {
+    _isShowLoading.add(true);
+    _device.listImages = await getImageFromServer(_device.nameDevice);
+    FirebaseDatabase.instance
+        .reference()
+        .child('devices/list')
+        .push()
+        .set(_device.toJson())
+        .then((value) {
+      _listDevices.add(_device);
+      handle();
+      _isShowLoading.add(false);
+    });
   }
 
   Future<DataSnapshot> getDevices() async {
