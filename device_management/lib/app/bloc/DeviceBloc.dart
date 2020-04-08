@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:device_management/app/model/core/AppStoreApplication.dart';
 import 'package:device_management/app/model/pojo/AppContent.dart';
@@ -102,13 +103,16 @@ class DeviceBloc {
   }
 
   void createList(int index) {
+    String time = Random.secure().nextDouble().toString();
+    print(time);
     _getListDevices.add({
       'list': _list
           .where((element) =>
               (_isDevices ? true : element.isAvailable()) &&
               (element.nameDevice.toLowerCase().contains(_searchWords)))
           .toList(),
-      'index': index
+      'index': index,
+      'time': time
     });
   }
 

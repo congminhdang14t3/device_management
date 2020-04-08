@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:device_management/app/model/pojo/Device.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
 import 'package:liquid_swipe/liquid_swipe.dart';
 
 class DeviceDetailPage extends StatefulWidget {
@@ -19,9 +18,6 @@ class DeviceDetailPage extends StatefulWidget {
 
 class DeviceDetailPageState extends State<DeviceDetailPage> {
   int page = 0;
-
-  UpdateType updateType;
-
   final colors = [Colors.red, Colors.cyan, Colors.yellow];
 
   Container itemDevice(int index) {
@@ -152,47 +148,51 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
     );
   }
 
+  Future<bool> _onBackPressed() {
+    Navigator.pop(context, {'i1': widget.indexImage, 'i2': page});
+  }
+
   @override
   Widget build(BuildContext context) {
     List<String> images = widget.device.listImages;
 //    print('AAA: ' + images.toString());
-    return Scaffold(
-        body: Stack(alignment: Alignment.bottomCenter, children: <Widget>[
-      Stack(
-        children: <Widget>[
-          Column(
-            children: <Widget>[
-              Hero(
-                  tag: 'image' + widget.indexImage.toString(),
-                  child: Container(
-                    height: 0,
-                  )),
-              Expanded(
-                child: LiquidSwipe(
-                  pages:
-                      List.generate(images.length, (index) => itemDevice(index))
-                          .toList(),
-                  enableLoop: true,
-                  enableSlideIcon: true,
-                  positionSlideIcon: 0.2,
-                  slideIconWidget: Icon(Icons.arrow_back_ios),
-                  onPageChangeCallback: pageChangeCallback,
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+          body: Stack(alignment: Alignment.bottomCenter, children: <Widget>[
+        Stack(
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                Container(
+                  height: 0,
                 ),
-              )
-            ],
-          ),
-          Container(
-              padding: EdgeInsets.all(8.0),
-              alignment: Alignment.bottomRight,
-              constraints: BoxConstraints.expand(height: 80),
-              child: IconButton(
-                  icon: Icon(Icons.clear, size: 35),
-                  onPressed: () => Navigator.pop(context,
-                      {'i1': widget.indexImage, 'i2': page})))
-        ],
-      ),
-      _detailWidget()
-    ]));
+                Expanded(
+                  child: LiquidSwipe(
+                    pages: List.generate(
+                        images.length, (index) => itemDevice(index)).toList(),
+                    enableLoop: true,
+                    enableSlideIcon: true,
+                    positionSlideIcon: 0.2,
+                    slideIconWidget: Icon(Icons.arrow_back_ios),
+                    onPageChangeCallback: pageChangeCallback,
+                  ),
+                )
+              ],
+            ),
+            Container(
+                padding: EdgeInsets.all(8.0),
+                alignment: Alignment.bottomRight,
+                constraints: BoxConstraints.expand(height: 80),
+                child: IconButton(
+                    icon: Icon(Icons.clear, size: 35),
+                    onPressed: () => Navigator.pop(
+                        context, {'i1': widget.indexImage, 'i2': page})))
+          ],
+        ),
+        _detailWidget()
+      ])),
+    );
   }
 
   pageChangeCallback(int lpage) {

@@ -15,7 +15,7 @@ class Utils {
                     CircularProgressIndicator(),
                     Container(
                         margin: EdgeInsets.only(top: 8),
-                        child: Text(S.of(context).dialogLoading))
+                        child: Text('Loading'))
                   ],
                 ))));
   }

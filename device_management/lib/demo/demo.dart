@@ -1,182 +1,113 @@
-import 'package:cached_network_image/cached_network_image.dart';
+// Copyright 2017 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+// ignore_for_file: public_member_api_docs
+
+import 'dart:async';
+//
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
-import 'dart:math' as math;
+import 'package:flutter/services.dart';
+import 'package:device_info/device_info.dart';
 
 void main() {
-  runApp(Background());
+  runZoned(() {
+    runApp(MyApp());
+  }, onError: (dynamic error, dynamic stack) {
+    print(error);
+    print(stack);
+  });
 }
 
-class Background extends StatelessWidget {
+class MyApp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      backgroundColor: Colors.white,
-      body: Column(
-        children: <Widget>[
-          new Stack(
-            alignment: Alignment.bottomCenter,
-            children: <Widget>[
-              Image.asset('assets/collaboration.png', width: MediaQuery.of(context).size.width/1.5,),
-              WavyHeader(),
-            ],
-          ),
-          Expanded(
-            child: Container(
-            ),
-          ),
-          Stack(
-            alignment: Alignment.bottomLeft,
-            children: <Widget>[
-              WavyFooter(),
-              CirclePink(),
-              CircleYellow(),
-            ],
-          )
-        ],
-      ),
-    );
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  Map<String, dynamic> _deviceData = <String, dynamic>{};
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
   }
-}
 
-const List<Color> orangeGradients = [
-  Color(0xFFFF9844),
-  Color(0xFFFE8853),
-  Color(0xFFFD7267),
-];
+  Future<void> initPlatformState() async {
+    Map<String, dynamic> deviceData;
 
-const List<Color> aquaGradients = [
-  Color(0xFF5AEAF1),
-  Color(0xFF8EF7DA),
-];
+    try {
+      if (Platform.isAndroid) {
+        deviceData = _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
+      } else if (Platform.isIOS) {
+        deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
+      }
+    } on PlatformException {
+      deviceData = <String, dynamic>{
+        'Error:': 'Failed to get platform version.'
+      };
+    }
 
-class WavyHeader extends StatelessWidget {
+    if (!mounted) return;
+
+    setState(() {
+      _deviceData = deviceData;
+    });
+  }
+
+  Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
+    return <String, dynamic>{
+      'version.release': build.version.release,
+      'model': build.model,
+      'androidId': build.androidId,
+    };
+  }
+
+  Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
+    return <String, dynamic>{
+      'name': data.name,
+      'utsname.release:': data.utsname.release,
+      'identifierForVendor': data.identifierForVendor,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ClipPath(
-      clipper: TopWaveClipper(),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              colors: orangeGradients,
-              begin: Alignment.topLeft,
-              end: Alignment.center),
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text(
+              Platform.isAndroid ? 'Android Device Info' : 'iOS Device Info'),
         ),
-        height: MediaQuery.of(context).size.height / 2.5,
-      ),
-    );
-  }
-}
-
-class WavyFooter extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ClipPath(
-      clipper: FooterWaveClipper(),
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              colors: aquaGradients,
-              begin: Alignment.center,
-              end: Alignment.bottomRight),
+        body: ListView(
+          children: _deviceData.keys.map((String property) {
+            return Row(
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    property,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Expanded(
+                    child: Container(
+                  padding: const EdgeInsets.fromLTRB(0.0, 10.0, 0.0, 10.0),
+                  child: Text(
+                    '${_deviceData[property]}',
+                    maxLines: 10,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )),
+              ],
+            );
+          }).toList(),
         ),
-        height: MediaQuery.of(context).size.height / 3,
       ),
     );
   }
-}
-
-class CirclePink extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: Offset(-70.0, 90.0),
-      child: Material(
-        color: Colors.pink,
-        child: Padding(padding: EdgeInsets.all(120)),
-        shape: CircleBorder(side: BorderSide(color: Colors.white, width: 15.0)),
-      ),
-    );
-  }
-}
-
-class CircleYellow extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Transform.translate(
-      offset: Offset(0.0, 210.0),
-      child: Material(
-        color: Colors.yellow,
-        child: Padding(padding: EdgeInsets.all(140)),
-        shape: CircleBorder(side: BorderSide(color: Colors.white, width: 15.0)),
-      ),
-    );
-  }
-}
-
-class TopWaveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    // This is where we decide what part of our image is going to be visible.
-    var path = Path();
-    path.lineTo(0.0, size.height);
-
-    var firstControlPoint = new Offset(size.width / 7, size.height - 30);
-    var firstEndPoint = new Offset(size.width / 6, size.height / 1.5);
-
-    path.quadraticBezierTo(firstControlPoint.dx, firstControlPoint.dy,
-        firstEndPoint.dx, firstEndPoint.dy);
-
-    var secondControlPoint = Offset(size.width / 5, size.height / 4);
-    var secondEndPoint = Offset(size.width / 1.5, size.height / 5);
-    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
-        secondEndPoint.dx, secondEndPoint.dy);
-
-    var thirdControlPoint =
-    Offset(size.width - (size.width / 9), size.height / 6);
-    var thirdEndPoint = Offset(size.width, 0.0);
-    path.quadraticBezierTo(thirdControlPoint.dx, thirdControlPoint.dy,
-        thirdEndPoint.dx, thirdEndPoint.dy);
-
-    ///move from bottom right to top
-    path.lineTo(size.width, 0.0);
-
-    ///finally close the path by reaching start point from top right corner
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class FooterWaveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.moveTo(size.width, 0.0);
-    path.lineTo(size.width, size.height);
-    path.lineTo(0.0, size.height);
-    path.lineTo(0.0, size.height - 60);
-    var secondControlPoint = Offset(size.width - (size.width / 6), size.height);
-    var secondEndPoint = Offset(size.width, 0.0);
-    path.quadraticBezierTo(secondControlPoint.dx, secondControlPoint.dy,
-        secondEndPoint.dx, secondEndPoint.dy);
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class YellowCircleClipper extends CustomClipper<Rect> {
-  @override
-  Rect getClip(Size size) {
-    return null;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
 }

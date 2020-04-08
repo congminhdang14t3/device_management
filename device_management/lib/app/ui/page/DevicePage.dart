@@ -2,19 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:device_management/app/bloc/DeviceBloc.dart';
 import 'package:device_management/app/model/pojo/Device.dart';
 import 'package:device_management/utility/Utils.dart';
-import 'package:firebase_database/firebase_database.dart';
-import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
-import 'package:device_management/app/bloc/HomeBloc.dart';
-import 'package:device_management/app/model/core/AppProvider.dart';
-import 'package:device_management/app/model/pojo/AppContent.dart';
-import 'package:device_management/app/ui/page/AppDetailPage.dart';
-import 'package:device_management/generated/i18n.dart';
-import 'package:device_management/utility/widget/StreamListItem.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:hidden_drawer_menu/hidden_drawer/hidden_drawer_menu.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
-import 'package:smooth_star_rating/smooth_star_rating.dart';
-import 'dart:math' as math;
 import 'DeviceDeitalPage.dart';
 
 class DevicePage extends StatefulWidget {
@@ -42,7 +33,8 @@ class _DevicePageState extends State<DevicePage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (null == bloc) {
-      bloc = DeviceBloc(AppProvider.getApplication(context));
+//      bloc = DeviceBloc(AppProvider.getApplication(context));
+      bloc = DeviceBloc(null);
       bloc.isShowLoading.listen((bool isLoading) {
         if (isLoading) {
           Utils.showLoading(context);
@@ -78,11 +70,13 @@ class _DevicePageState extends State<DevicePage> {
             IconButton(
                 padding: EdgeInsets.only(left: 5.0),
                 icon: Icon(Icons.menu, size: 45, color: Colors.red),
-                onPressed: () {}),
+                onPressed: () {
+                  SimpleHiddenDrawerProvider.of(context).toggle();
+                }),
             const Padding(
               padding: const EdgeInsets.all(15.0),
               child: const Text(
-                "Device\n\t\t\tManagement",
+                "Device\n\t\t\t Management",
                 style: TextStyle(
                   fontSize: 30,
                 ),
@@ -225,12 +219,13 @@ class _DevicePageState extends State<DevicePage> {
         }
         List<Device> listDevices = map['list'];
         int index = map['index'];
+        String time = map['time'];
 //        print('index: '+index.toString());
         if (listDevices != null && listDevices.isNotEmpty) {
           return Swiper(
             index: index,
             itemCount: listDevices.length,
-            key: GlobalKey(),
+//            key: GlobalKey(),
             viewportFraction: 0.6,
             scale: 0.8,
 //            autoplay: true,
@@ -259,14 +254,12 @@ class _DevicePageState extends State<DevicePage> {
                       )
                     ]),
                     Expanded(
-                      child: Hero(
-                          tag: 'image$index',
-                          child: CachedNetworkImage(
-                              imageUrl: listDevices[index].listImages[0].trim(),
-                              errorWidget: (context, url, error) =>
-                                  new Icon(Icons.error),
-                              fadeOutDuration: new Duration(seconds: 1),
-                              fadeInDuration: new Duration(seconds: 1))),
+                      child: CachedNetworkImage(
+                          imageUrl: listDevices[index].listImages[0].trim(),
+                          errorWidget: (context, url, error) =>
+                              new Icon(Icons.error),
+                          fadeOutDuration: new Duration(seconds: 1),
+                          fadeInDuration: new Duration(seconds: 1)),
                     )
                   ],
                 ),
