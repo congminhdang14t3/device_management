@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Device {
+  String id;
   String nameDevice;
   String serialNumber;
   String osVersion;
@@ -16,9 +17,10 @@ class Device {
 
   Map<String, dynamic> toJson() => _$EntryToJson(this);
 
+
   @override
   String toString() {
-    return 'Device{nameDevice: $nameDevice, serialNumber: $serialNumber, osVersion: $osVersion, nameHolder: $nameHolder, emailHolder: $emailHolder, dateTime: $dateTime, listImages: $listImages}';
+    return 'Device{id: $id, nameDevice: $nameDevice, serialNumber: $serialNumber, osVersion: $osVersion, nameHolder: $nameHolder, emailHolder: $emailHolder, dateTime: $dateTime, listImages: $listImages}';
   }
 
   bool isAvailable() {

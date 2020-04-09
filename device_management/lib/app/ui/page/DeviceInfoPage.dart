@@ -144,7 +144,9 @@ class DeviceInfoPageState extends State<DeviceInfoPage> {
                                         borderRadius:
                                             BorderRadius.circular(10)),
                                     onPressed: isAdd
-                                        ? (osUpdate.length == 0 ? null : () {})
+                                        ? (osUpdate.length == 0
+                                            ? null
+                                            : () => bloc.updateDevice())
                                         : null,
                                     child: Text('Update')),
                               ),
@@ -160,7 +162,10 @@ class DeviceInfoPageState extends State<DeviceInfoPage> {
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(10)),
-                                    onPressed: isAdd ? () {} : null,
+                                    onPressed: isAdd
+                                        ? () => Utils.showAlertDialog(context,
+                                            'Are you sure to delete this device?',()=> bloc.deleteDevice())
+                                        : null,
                                     child: Text('Delete')),
                               ),
                               SizedBox(height: 5.0)

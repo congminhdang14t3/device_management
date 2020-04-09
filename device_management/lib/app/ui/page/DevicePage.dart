@@ -74,7 +74,7 @@ class _DevicePageState extends State<DevicePage> {
                   SimpleHiddenDrawerProvider.of(context).toggle();
                 }),
             const Padding(
-              padding: const EdgeInsets.all(15.0),
+              padding: const EdgeInsets.all(16.0),
               child: const Text(
                 "Device\n\t\t\t Management",
                 style: TextStyle(
@@ -230,39 +230,41 @@ class _DevicePageState extends State<DevicePage> {
 //            autoplay: true,
             itemBuilder: (BuildContext context, int index) {
               return Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                elevation: 3,
-                child: Column(
-                  children: <Widget>[
-                    Row(children: <Widget>[
-                      Expanded(
-                          child: Center(
-                              child: Text(listDevices[index].nameDevice))),
-                      Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Icon(
-                          listDevices[index].isAvailable()
-                              ? Icons.check_circle
-                              : Icons.account_circle,
-                          color: listDevices[index].isAvailable()
-                              ? Colors.green
-                              : Colors.orange,
-                        ),
-                      )
-                    ]),
-                    Expanded(
-                      child: CachedNetworkImage(
-                          imageUrl: listDevices[index].listImages[0].trim(),
-                          errorWidget: (context, url, error) =>
-                              new Icon(Icons.error),
-                          fadeOutDuration: new Duration(seconds: 1),
-                          fadeInDuration: new Duration(seconds: 1)),
-                    )
-                  ],
-                ),
-              );
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  elevation: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Column(
+                      children: <Widget>[
+                        Row(children: <Widget>[
+                          Expanded(
+                              child: Center(
+                                  child: Text(listDevices[index].nameDevice))),
+                          Padding(
+                            padding: const EdgeInsets.all(5.0),
+                            child: Icon(
+                              listDevices[index].isAvailable()
+                                  ? Icons.check_circle
+                                  : Icons.account_circle,
+                              color: listDevices[index].isAvailable()
+                                  ? Colors.green
+                                  : Colors.orange,
+                            ),
+                          )
+                        ]),
+                        Expanded(
+                          child: CachedNetworkImage(
+                              imageUrl: listDevices[index].listImages[0].trim(),
+                              errorWidget: (context, url, error) =>
+                                  new Icon(Icons.error),
+                              fadeOutDuration: new Duration(seconds: 1),
+                              fadeInDuration: new Duration(seconds: 1)),
+                        )
+                      ],
+                    ),
+                  ));
             },
             onTap: (index) async {
               final result = await Navigator.push(

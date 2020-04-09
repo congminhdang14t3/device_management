@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:device_info/device_info.dart';
 import 'package:device_management/app/model/core/AppStoreApplication.dart';
 import 'package:device_management/app/model/pojo/Device.dart';
+import 'package:device_management/utility/Utils.dart';
 import 'package:device_management/utility/log/Log.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -31,6 +32,7 @@ class DeviceInfoBloc {
   List<Device> _listDevices = [];
   Device _device;
   final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
+  int _indexDevice = -1;
 
   void dispose() {
     _compositeSubscription.clear();
@@ -57,7 +59,8 @@ class DeviceInfoBloc {
           decoded[key]['emailHolder'],
           decoded[key]['dateTime'],
           linkImages.substring(1, linkImages.length - 1).split(","),
-        ); // prints FF0000
+        );
+        d.id = key.toString();
         _listDevices.add(d);
       }
 //      print(_list.toString());
@@ -69,7 +72,7 @@ class DeviceInfoBloc {
           deviceInfos[0], deviceInfos[1], deviceInfos[2], '', '', '', []);
 //      print("AAAAA:: " + device.toString());
 
-      handle();
+      _handle();
       _isShowLoading.add(false);
     }, onError: (e, s) {
       Log.info(e);
@@ -77,19 +80,22 @@ class DeviceInfoBloc {
     _compositeSubscription.add(subscription);
   }
 
-  void handle() {
+  void _handle() {
     bool isAdd = false;
     String updateOS = '';
     for (var i = 0; i < _listDevices.length; i++) {
       if (_listDevices[i].serialNumber.contains(_device.serialNumber)) {
         isAdd = true;
-        _device = _listDevices[i];
+        _device.listImages = _listDevices[i].listImages;
+        _device.id = _listDevices[i].id;
+        _indexDevice = i;
         if (!_listDevices[i].osVersion.contains(_device.osVersion)) {
           updateOS = _listDevices[i].osVersion;
         }
         break;
       }
     }
+    print(_device.toString());
     _deviceInfo.add({
       'device': _device,
       'add': isAdd,
@@ -110,17 +116,54 @@ class DeviceInfoBloc {
     return images;
   }
 
-  void addDevice() async {
+  void updateDevice() {
     _isShowLoading.add(true);
-    _device.listImages = await getImageFromServer(_device.nameDevice);
     FirebaseDatabase.instance
         .reference()
         .child('devices/list')
-        .push()
+        .child(_device.id)
+        .set(_device.toJson())
+        .then((value) {
+      if (_indexDevice != -1) {
+        _listDevices[_indexDevice] = _device;
+        _handle();
+        _isShowLoading.add(false);
+      }
+    });
+  }
+
+  void deleteDevice() {
+    _isShowLoading.add(true);
+    FirebaseDatabase.instance
+        .reference()
+        .child('devices/list')
+        .child(_device.id)
+        .remove()
+        .then((value) {
+      if (_indexDevice != -1) {
+        _listDevices.removeAt(_indexDevice);
+        _handle();
+        _isShowLoading.add(false);
+      }
+    });
+  }
+
+  void addDevice() async {
+    _isShowLoading.add(true);
+    _device.listImages = await getImageFromServer(_device.nameDevice);
+    //create key for device
+    String key =
+        FirebaseDatabase.instance.reference().child('devices/list').push().key;
+
+    //add device by key
+    FirebaseDatabase.instance
+        .reference()
+        .child('devices/list')
+        .child(key)
         .set(_device.toJson())
         .then((value) {
       _listDevices.add(_device);
-      handle();
+      _handle();
       _isShowLoading.add(false);
     });
   }
