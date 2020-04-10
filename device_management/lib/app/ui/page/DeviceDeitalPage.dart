@@ -129,9 +129,7 @@ class DeviceDetailPageState extends State<DeviceDetailPage> {
                         Text(
                             widget.device.isAvailable()
                                 ? "Availabe"
-                                : widget.device.nameHolder +
-                                    " - " +
-                                    widget.device.dateTime,
+                                : widget.device.nameHolder,
                             style: TextStyle(
                                 fontStyle: FontStyle.italic,
                                 fontSize: 20,

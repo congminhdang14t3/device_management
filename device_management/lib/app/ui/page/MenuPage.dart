@@ -1,3 +1,4 @@
+import 'package:device_management/app/ui/widgets/MenuBackground.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_drawer_menu/hidden_drawer/hidden_drawer_menu.dart';
 
@@ -44,37 +45,66 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
+  int position = 0;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.maxFinite,
-      height: double.maxFinite,
-      decoration: BoxDecoration(
-          gradient: LinearGradient(
-        colors: [Colors.blue, Colors.red],
-        begin: Alignment.topLeft,
-        end: Alignment.topRight,
-      )),
-      padding: const EdgeInsets.all(8.0),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            RaisedButton(
-              onPressed: () {
-                SimpleHiddenDrawerProvider.of(context)
-                    .setSelectedMenuPosition(0);
-              },
-              child: Text("Home Page"),
+    return Scaffold(
+      body: Stack(
+        children: <Widget>[
+          Background(),
+          Container(
+            width: double.maxFinite,
+            height: double.maxFinite,
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: MediaQuery.of(context).size.height / 5),
+                  Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(10),
+                    child: const FlutterLogo(size: 80),
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.blue),
+                        color: Colors.blue[100]),
+                  ),
+                  ListTile(
+                      title: Text('Home Page'),
+                      leading: Icon(Icons.brightness_1,
+                          color: position == 0
+                              ? Colors.green
+                              : Colors.grey),
+                      onTap: () {
+                        SimpleHiddenDrawerProvider.of(context)
+                            .setSelectedMenuPosition(0);
+                        setState(() {
+                          position = 0;
+                        });
+                      }),
+                  ListTile(
+                      title: Text('Device Infomation'),
+                      leading: Icon(Icons.brightness_1,
+                          color: position == 1
+                              ? Colors.green
+                              : Colors.grey),
+                      onTap: () {
+                        SimpleHiddenDrawerProvider.of(context)
+                            .setSelectedMenuPosition(1);
+                        setState(() {
+                          position = 1;
+                        });
+                      }),
+                  ListTile(
+                      title: Text('About us'),
+                      leading: Icon(Icons.brightness_1,
+                          color: position == 2 ? Colors.green : Colors.grey))
+                ],
+              ),
             ),
-            RaisedButton(
-                onPressed: () {
-                  SimpleHiddenDrawerProvider.of(context)
-                      .setSelectedMenuPosition(1);
-                },
-                child: Text("Device Infomation"))
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

@@ -100,8 +100,9 @@ class DeviceInfoPageState extends State<DeviceInfoPage> {
                                           constraints: BoxConstraints.expand(
                                               width: MediaQuery.of(context)
                                                       .size
-                                                      .width /
-                                                  2),
+                                                      .width *
+                                                  2 /
+                                                  3),
                                           decoration: BoxDecoration(
                                               image: DecorationImage(
                                                   image:
@@ -150,24 +151,24 @@ class DeviceInfoPageState extends State<DeviceInfoPage> {
                                         : null,
                                     child: Text('Update')),
                               ),
-                              ListTile(
-                                title: isAdd
-                                    ? SizedBox.shrink()
-                                    : Text("*Needed add device first",
-                                        style: TextStyle(color: Colors.red)),
-                                subtitle: RaisedButton(
-                                    elevation: 4.0,
-                                    color: Colors.red[400],
-                                    padding: EdgeInsets.all(15),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10)),
-                                    onPressed: isAdd
-                                        ? () => Utils.showAlertDialog(context,
-                                            'Are you sure to delete this device?',()=> bloc.deleteDevice())
-                                        : null,
-                                    child: Text('Delete')),
-                              ),
+//                              ListTile(
+//                                title: isAdd
+//                                    ? SizedBox.shrink()
+//                                    : Text("*Needed add device first",
+//                                        style: TextStyle(color: Colors.red)),
+//                                subtitle: RaisedButton(
+//                                    elevation: 4.0,
+//                                    color: Colors.red[400],
+//                                    padding: EdgeInsets.all(15),
+//                                    shape: RoundedRectangleBorder(
+//                                        borderRadius:
+//                                            BorderRadius.circular(10)),
+//                                    onPressed: isAdd
+//                                        ? () => Utils.showAlertDialog(context,
+//                                            'Are you sure to delete this device?',()=> bloc.deleteDevice())
+//                                        : null,
+//                                    child: Text('Delete')),
+//                              ),
                               SizedBox(height: 5.0)
                             ],
                           );

@@ -39,12 +39,14 @@ class DeviceInfoBloc {
     _deviceInfo.close();
   }
 
-  void checkDevice() {
+  void checkDevice() async {
     _isShowLoading.add(true);
+//    await Future.delayed(Duration(seconds: 1));
 
-    StreamSubscription subscription = Observable.fromFuture(Utils.initPlatformState())
-        .zipWith(Observable.fromFuture(getDevices()),
-            (Map<String, dynamic> device, DataSnapshot listDevices) {
+    StreamSubscription subscription =
+        Observable.fromFuture(Utils.initPlatformState())
+            .zipWith(Observable.fromFuture(getDevices()),
+                (Map<String, dynamic> device, DataSnapshot listDevices) {
       return CombineResponse(device, listDevices);
     }).listen((CombineResponse response) {
       Map<dynamic, dynamic> decoded = response.snapshotDevices.value;
@@ -131,21 +133,21 @@ class DeviceInfoBloc {
     });
   }
 
-  void deleteDevice() {
-    _isShowLoading.add(true);
-    FirebaseDatabase.instance
-        .reference()
-        .child('devices/list')
-        .child(_device.id)
-        .remove()
-        .then((value) {
-      if (_indexDevice != -1) {
-        _listDevices.removeAt(_indexDevice);
-        _handle();
-        _isShowLoading.add(false);
-      }
-    });
-  }
+//  void deleteDevice() {
+//    _isShowLoading.add(true);
+//    FirebaseDatabase.instance
+//        .reference()
+//        .child('devices/list')
+//        .child(_device.id)
+//        .remove()
+//        .then((value) {
+//      if (_indexDevice != -1) {
+//        _listDevices.removeAt(_indexDevice);
+//        _handle();
+//        _isShowLoading.add(false);
+//      }
+//    });
+//  }
 
   void addDevice() async {
     _isShowLoading.add(true);

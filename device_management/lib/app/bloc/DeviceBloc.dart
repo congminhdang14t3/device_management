@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:intl/intl.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:device_management/app/model/core/AppStoreApplication.dart';
 import 'package:device_management/app/model/pojo/Device.dart';
@@ -55,8 +55,10 @@ class DeviceBloc {
     _getListDevices.close();
   }
 
-  void loadListDevices() {
+  void loadListDevices() async {
     _isShowLoading.add(true);
+//    await Future.delayed(Duration(seconds: 1));
+
     FirebaseDatabase.instance
         .reference()
         .child('devices/list')
@@ -115,26 +117,12 @@ class DeviceBloc {
     });
   }
 
-//  Future<void> addDivice() async {
-//    List<String> images = [
-//      'https://cdn.tgdd.vn/Products/Images/42/218363/huawei-nova-7i-pink-600x600-400x400.jpg',
-//      'https://cdn.tgdd.vn/Products/Images/42/198985/huawei-p30-lite-1-400x400.jpg',
-//      'https://cdn.tgdd.vn/Products/Images/42/209795/huawei-nova-5t-400x460-400x460.png'
-//    ];
-//    Device device = Device("Huawei Pro 30", "12345678910", "10.1.0",
-//        "Lan Huynh", "lan.huynh@codecomplete.jp", "03/04/2020", images);
-//    return await FirebaseDatabase.instance
-//        .reference()
-//        .child('devices/list')
-//        .push()
-//        .set(device.toJson());
-//  }
-
   void changeImage(int i1, int i2) {
     if (i2 == 0) return;
     Device device = _list[i1];
 
     List<String> list = device.listImages;
+    //swap 2 values
     String temp = list[0];
     list[0] = list[i2];
     list[i2] = temp;
@@ -185,12 +173,15 @@ class DeviceBloc {
         if (device.emailHolder.length == 0) {
           device.emailHolder = email;
           device.nameHolder = name;
+          device.dateTime =
+              DateFormat('yyyy-MM-dd – kk:mm').format(DateTime.now());
           FirebaseDatabase.instance
               .reference()
               .child('devices/list')
               .child(device.id)
               .set(device.toJson())
-              .then((value) => function.call('Check-in successful!'));
+              .then(
+                  (value) => function.call('Hi, $name. Check-in successful!'));
         } else {
           //have holder
           if (device.emailHolder.contains(email)) {
@@ -202,7 +193,8 @@ class DeviceBloc {
                 .child('devices/list')
                 .child(device.id)
                 .set(device.toJson())
-                .then((value) => function.call('Check-out successful!'));
+                .then((value) =>
+                    function.call('Hi, $name. Check-out successful!'));
           } else {
             //have anothor holder
             function.call('Device is hold by ' + device.nameHolder);
