@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 
+import 'package:barcode_scan/barcode_scan.dart';
 import 'package:device_management/app/model/core/AppStoreApplication.dart';
-import 'package:device_management/app/model/pojo/AppContent.dart';
 import 'package:device_management/app/model/pojo/Device.dart';
+import 'package:device_management/utility/Utils.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:rxdart/subjects.dart';
+import 'package:flutter/services.dart';
 
 class DeviceBloc {
   final AppStoreApplication _application;
@@ -77,9 +78,10 @@ class DeviceBloc {
           decoded[key]['emailHolder'],
           decoded[key]['dateTime'],
           linkImages.substring(1, linkImages.length - 1).split(","),
-        ); // prints FF0000
+        );
+        d.id = key;
         _list.add(d);
-//        print(d.toString());
+        print(d.toString());
       }
       createList(0);
     });
@@ -113,20 +115,20 @@ class DeviceBloc {
     });
   }
 
-  Future<void> addDivice() async {
-    List<String> images = [
-      'https://cdn.tgdd.vn/Products/Images/42/218363/huawei-nova-7i-pink-600x600-400x400.jpg',
-      'https://cdn.tgdd.vn/Products/Images/42/198985/huawei-p30-lite-1-400x400.jpg',
-      'https://cdn.tgdd.vn/Products/Images/42/209795/huawei-nova-5t-400x460-400x460.png'
-    ];
-    Device device = Device("Huawei Pro 30", "12345678910", "10.1.0",
-        "Lan Huynh", "lan.huynh@codecomplete.jp", "03/04/2020", images);
-    return await FirebaseDatabase.instance
-        .reference()
-        .child('devices/list')
-        .push()
-        .set(device.toJson());
-  }
+//  Future<void> addDivice() async {
+//    List<String> images = [
+//      'https://cdn.tgdd.vn/Products/Images/42/218363/huawei-nova-7i-pink-600x600-400x400.jpg',
+//      'https://cdn.tgdd.vn/Products/Images/42/198985/huawei-p30-lite-1-400x400.jpg',
+//      'https://cdn.tgdd.vn/Products/Images/42/209795/huawei-nova-5t-400x460-400x460.png'
+//    ];
+//    Device device = Device("Huawei Pro 30", "12345678910", "10.1.0",
+//        "Lan Huynh", "lan.huynh@codecomplete.jp", "03/04/2020", images);
+//    return await FirebaseDatabase.instance
+//        .reference()
+//        .child('devices/list')
+//        .push()
+//        .set(device.toJson());
+//  }
 
   void changeImage(int i1, int i2) {
     if (i2 == 0) return;
@@ -140,5 +142,75 @@ class DeviceBloc {
     _list[i1] = device;
 
     createList(i1);
+  }
+
+  void scan(Function function) async {
+    String barcode;
+
+    try {
+      barcode = await BarcodeScanner.scan();
+      handleScanner(barcode, function);
+      return;
+    } on PlatformException catch (e) {
+      if (e.code == BarcodeScanner.CameraAccessDenied) {
+        barcode = 'The user did not grant the camera permission!';
+      } else {
+        barcode = 'Unknown error: $e';
+      }
+    } on FormatException {
+      barcode =
+          'null (User returned using the "back"-button before scanning anything. Result)';
+    } catch (e) {
+      barcode = 'Unknown error: $e';
+    }
+    function.call(barcode);
+  }
+
+  void handleScanner(String scan, Function function) {
+//    print(scan);
+    Map<String, dynamic> map = jsonDecode(scan);
+
+    String name = map['name'];
+    String email = map['email'];
+    updateScan(name, email, function);
+  }
+
+  void updateScan(String name, String email, Function function) {
+    Utils.initPlatformState().then((value) {
+      String deviceId = value['id'];
+      print("ID: " + deviceId);
+      try {
+        Device device = _list
+            .singleWhere((element) => element.serialNumber.contains(deviceId));
+        if (device.emailHolder.length == 0) {
+          device.emailHolder = email;
+          device.nameHolder = name;
+          FirebaseDatabase.instance
+              .reference()
+              .child('devices/list')
+              .child(device.id)
+              .set(device.toJson())
+              .then((value) => function.call('Check-in successful!'));
+        } else {
+          //have holder
+          if (device.emailHolder.contains(email)) {
+            //check-out
+            device.emailHolder = '';
+            device.nameHolder = '';
+            FirebaseDatabase.instance
+                .reference()
+                .child('devices/list')
+                .child(device.id)
+                .set(device.toJson())
+                .then((value) => function.call('Check-out successful!'));
+          } else {
+            //have anothor holder
+            function.call('Device is hold by ' + device.nameHolder);
+          }
+        }
+      } catch (e) {
+        function.call('Device isn\'t added');
+      }
+    });
   }
 }

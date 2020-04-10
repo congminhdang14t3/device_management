@@ -102,14 +102,14 @@ class _DevicePageState extends State<DevicePage> {
                     prefixIcon: Icon(Icons.search),
                     suffixIcon: null != searchText && searchText.isNotEmpty
                         ? IconButton(
-                            icon: Icon(
-                              Icons.close,
-                              color: Colors.blue,
-                            ),
-                            onPressed: () {
-                              bloc.searchDevice('');
-                              _controller.clear();
-                            })
+                        icon: Icon(
+                          Icons.close,
+                          color: Colors.blue,
+                        ),
+                        onPressed: () {
+                          bloc.searchDevice('');
+                          _controller.clear();
+                        })
                         : null,
                     focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(width: 1, color: Colors.red),
@@ -258,7 +258,7 @@ class _DevicePageState extends State<DevicePage> {
                           child: CachedNetworkImage(
                               imageUrl: listDevices[index].listImages[0].trim(),
                               errorWidget: (context, url, error) =>
-                                  new Icon(Icons.error),
+                              new Icon(Icons.error),
                               fadeOutDuration: new Duration(seconds: 1),
                               fadeInDuration: new Duration(seconds: 1)),
                         )
@@ -270,15 +270,16 @@ class _DevicePageState extends State<DevicePage> {
               final result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (_) => DeviceDetailPage(
-                          device: listDevices[index], indexImage: index)));
+                      builder: (_) =>
+                          DeviceDetailPage(
+                              device: listDevices[index], indexImage: index)));
 
               bloc.changeImage(result['i1'], result['i2']);
             },
             pagination: SwiperPagination(
                 margin: EdgeInsets.all(0),
                 alignment:
-                    _isShowKeyBoard ? Alignment.topLeft : Alignment.bottomLeft,
+                _isShowKeyBoard ? Alignment.topLeft : Alignment.bottomLeft,
                 builder: FractionPaginationBuilder(
                     color: Colors.blue, fontSize: 30)),
           );
@@ -291,10 +292,10 @@ class _DevicePageState extends State<DevicePage> {
         body: Container(
             decoration: BoxDecoration(
                 gradient: LinearGradient(
-              colors: [Colors.blue, Colors.red],
-              begin: Alignment.topLeft,
-              end: Alignment.topRight,
-            )),
+                  colors: [Colors.blue, Colors.red],
+                  begin: Alignment.topLeft,
+                  end: Alignment.topRight,
+                )),
             padding: EdgeInsets.all(8.0),
             child: Container(
                 decoration: BoxDecoration(
@@ -333,8 +334,15 @@ class _DevicePageState extends State<DevicePage> {
                               borderRadius: BorderRadius.circular(50)),
                           child: IconButton(
                               icon:
-                                  Icon(Icons.photo_camera, color: Colors.white),
-                              onPressed: () {}),
+                              Icon(Icons.photo_camera, color: Colors.white),
+                              onPressed: () {
+                                bloc.scan((note) =>
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                      content: Text(note),
+                                      duration: Duration(seconds: 3),
+                                    ))
+                                );
+                              }),
                         ))
                   ],
                 ))));

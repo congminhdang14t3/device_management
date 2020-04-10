@@ -31,7 +31,6 @@ class DeviceInfoBloc {
   _init() {}
   List<Device> _listDevices = [];
   Device _device;
-  final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   int _indexDevice = -1;
 
   void dispose() {
@@ -43,7 +42,7 @@ class DeviceInfoBloc {
   void checkDevice() {
     _isShowLoading.add(true);
 
-    StreamSubscription subscription = Observable.fromFuture(initPlatformState())
+    StreamSubscription subscription = Observable.fromFuture(Utils.initPlatformState())
         .zipWith(Observable.fromFuture(getDevices()),
             (Map<String, dynamic> device, DataSnapshot listDevices) {
       return CombineResponse(device, listDevices);
@@ -173,35 +172,6 @@ class DeviceInfoBloc {
         .reference()
         .child('devices/list')
         .once();
-  }
-
-  Future<Map<String, dynamic>> initPlatformState() async {
-    try {
-      if (Platform.isAndroid) {
-        return _readAndroidBuildData(await deviceInfoPlugin.androidInfo);
-      } else if (Platform.isIOS) {
-        return _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
-      }
-    } on PlatformException {
-      return <String, dynamic>{'Error:': 'Failed to get platform version.'};
-    }
-    return <String, dynamic>{'Error:': 'Failed to get platform version.'};
-  }
-
-  Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
-    return <String, dynamic>{
-      'model': build.model,
-      'androidId': build.androidId,
-      'version.release': build.version.release,
-    };
-  }
-
-  Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
-    return <String, dynamic>{
-      'name': data.name,
-      'identifierForVendor': data.identifierForVendor,
-      'utsname.release:': data.utsname.release,
-    };
   }
 }
 
