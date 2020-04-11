@@ -74,7 +74,7 @@ class Utils {
     return <String, dynamic>{
       'model': data.name,
       'id': data.identifierForVendor,
-      'release:': data.utsname.release,
+      'release': data.systemVersion,
     };
   }
 }

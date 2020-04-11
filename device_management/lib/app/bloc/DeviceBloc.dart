@@ -79,7 +79,7 @@ class DeviceBloc {
           decoded[key]['nameHolder'],
           decoded[key]['emailHolder'],
           decoded[key]['dateTime'],
-          linkImages.substring(1, linkImages.length - 1).split(","),
+          linkImages.substring(1, linkImages.length - 1).split(", "),
         );
         d.id = key;
         _list.add(d);

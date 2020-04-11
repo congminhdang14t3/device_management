@@ -169,7 +169,7 @@ class DeviceInfoPageState extends State<DeviceInfoPage> {
 //                                        : null,
 //                                    child: Text('Delete')),
 //                              ),
-                              SizedBox(height: 5.0)
+                              SizedBox(height: 10.0)
                             ],
                           );
                         })))));
