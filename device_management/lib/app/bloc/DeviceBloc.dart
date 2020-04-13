@@ -73,14 +73,16 @@ class DeviceBloc {
       for (var key in decoded.keys) {
         String linkImages = decoded[key]['listImages'].toString();
         Device d = Device(
-          decoded[key]['nameDevice'],
-          decoded[key]['serialNumber'],
-          decoded[key]['osVersion'],
-          decoded[key]['nameHolder'],
-          decoded[key]['emailHolder'],
-          decoded[key]['dateTime'],
-          linkImages.substring(1, linkImages.length - 1).split(", "),
-        );
+            decoded[key]['nameDevice'],
+            decoded[key]['serialNumber'],
+            decoded[key]['osVersion'],
+            decoded[key]['nameHolder'],
+            decoded[key]['emailHolder'],
+            decoded[key]['dateTime'],
+            linkImages
+                .substring(1, linkImages.length - 1)
+                .split(",")
+                .where((element) => element.contains('http')).toList());
         d.id = key;
         _list.add(d);
         print(d.toString());
