@@ -1,4 +1,5 @@
 import 'package:device_management/app/ui/widgets/MenuBackground.dart';
+import 'package:flare_splash_screen/flare_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hidden_drawer_menu/hidden_drawer/hidden_drawer_menu.dart';
 
@@ -19,21 +20,27 @@ class MenuPage extends StatelessWidget {
         cursorColor: Colors.red,
         primarySwatch: Colors.red,
       ),
-      home: SimpleHiddenDrawer(
-        menu: Menu(),
-        screenSelectedBuilder: (position, controller) {
-          Widget screenCurrent;
+      home: SplashScreen.navigate(
+        backgroundColor: Colors.white,
+        name: 'assets/splash.flr',
+        next: (context) => SimpleHiddenDrawer(
+          menu: Menu(),
+          screenSelectedBuilder: (position, controller) {
+            Widget screenCurrent;
 
-          switch (position) {
-            case 0:
-              screenCurrent = DevicePage();
-              break;
-            case 1:
-              screenCurrent = DeviceInfoPage();
-              break;
-          }
-          return Scaffold(body: screenCurrent);
-        },
+            switch (position) {
+              case 0:
+                screenCurrent = DevicePage();
+                break;
+              case 1:
+                screenCurrent = DeviceInfoPage();
+                break;
+            }
+            return Scaffold(body: screenCurrent);
+          },
+        ),
+        until: () => Future.delayed(Duration(milliseconds: 100)),
+        startAnimation: 'intro',
       ),
     );
   }
@@ -73,9 +80,7 @@ class _MenuState extends State<Menu> {
                   ListTile(
                       title: Text('Home Page'),
                       leading: Icon(Icons.brightness_1,
-                          color: position == 0
-                              ? Colors.green
-                              : Colors.grey),
+                          color: position == 0 ? Colors.green : Colors.grey),
                       onTap: () {
                         SimpleHiddenDrawerProvider.of(context)
                             .setSelectedMenuPosition(0);
@@ -86,9 +91,7 @@ class _MenuState extends State<Menu> {
                   ListTile(
                       title: Text('Device Infomation'),
                       leading: Icon(Icons.brightness_1,
-                          color: position == 1
-                              ? Colors.green
-                              : Colors.grey),
+                          color: position == 1 ? Colors.green : Colors.grey),
                       onTap: () {
                         SimpleHiddenDrawerProvider.of(context)
                             .setSelectedMenuPosition(1);
